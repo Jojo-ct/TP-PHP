@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Réseau Social</title>
+    <link rel="stylesheet" href="assets/css/style.css"> <!-- Nouveau CSS Premium -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Conteneur principal pour toutes les vues -->
+    <div id="app-container">
+
+        <!-- Vue d'Inscription -->
+        <div id="register-view" class="auth-container" style="display: none;">
+            <h2>Créer un compte</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <input type="text" id="register-first-name" placeholder="Prénom" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="register-last-name" placeholder="Nom de famille" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="register-email" placeholder="Adresse e-mail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="register-password" placeholder="Nouveau mot de passe" required>
+                </div>
+                <button type="submit" class="auth-button secondary-button">S'inscrire</button>
+                <div id="registerMessage" class="message-box" style="display: none;"></div>
+            </form>
+            <a href="#" id="showLoginFromRegister" class="link-text">Vous avez déjà un compte ?</a>
+        </div>
+
+        <!-- Vue de Connexion -->
+        <div id="login-view" class="auth-container" style="display: none;">
+            <h2>Se connecter</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Adresse e-mail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Mot de passe" required>
+                </div>
+                <button type="submit" class="auth-button">Se connecter</button>
+                <div id="loginMessage" class="message-box" style="display: none;"></div>
+            </form>
+            <a href="#" id="showForgotPassword" class="link-text">Mot de passe oublié ?</a>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #dadde1;">
+            <button id="showRegisterFromLogin" class="auth-button secondary-button">Créer un nouveau compte</button>
+        </div>
+
+        <!-- Vue Mot de passe oublié -->
+        <div id="forgot-password-view" class="auth-container" style="display: none;">
+            <h2>Mot de passe oublié ?</h2>
+            <p style="color: #606770; font-size: 0.9em; margin-bottom: 20px;">Veuillez entrer votre adresse e-mail pour rechercher votre compte.</p>
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <input type="email" id="forgot-email" placeholder="Adresse e-mail" required>
+                </div>
+                <button type="submit" class="auth-button">Rechercher</button>
+                <div id="forgotPasswordMessage" class="message-box" style="display: none;"></div>
+            </form>
+            <a href="#" id="backToLoginFromForgot" class="link-text">Annuler</a>
+        </div>
+
+        <!-- Vue Réinitialisation de mot de passe -->
+        <div id="reset-password-view" class="auth-container" style="display: none;">
+            <h2>Réinitialiser votre mot de passe</h2>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <input type="password" id="reset-new-password" placeholder="Nouveau mot de passe" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reset-confirm-password" placeholder="Confirmer le nouveau mot de passe" required>
+                </div>
+                <button type="submit" class="auth-button">Réinitialiser le mot de passe</button>
+                <div id="resetPasswordMessage" class="message-box" style="display: none;"></div>
+            </form>
+            <a href="#" id="backToLoginFromReset" class="link-text">Retour à la connexion</a>
+        </div>
+
+        <!-- Vue de confirmation d'email -->
+        <div id="email-confirmation-view" class="auth-container" style="display: none;">
+            <h2>Confirmation d'email</h2>
+            <p id="confirmationMessage" style="color: #606770; font-size: 0.9em; margin-bottom: 20px;">Veuillez patienter pendant la confirmation de votre email...</p>
+            <a href="#" id="backToLoginFromConfirmation" class="link-text" style="display: none;">Retour à la connexion</a>
+        </div>
+
+
+        <!-- Contenu principal de l'application (Fil d'actualité, Amis, Messages, etc. - pour les clients) -->
+        <div id="main-app-content" class="main-content-wrapper" style="display: none;">
+            <header class="main-header">
+                <div class="header-left">
+                    <button id="newsFeedBtn" class="nav-btn active">Fil d'actualité</button>
+                    <button id="invitationsBtn" class="nav-btn">Invitations</button>
+                    <button id="friendsBtn" class="nav-btn">Amis</button>
+                    <button id="profileBtn" class="nav-btn">Mon Profil</button>
+                    <!-- Bouton pour le Dashboard Admin/Modérateur (visible selon le rôle) -->
+                    <button id="adminDashboardBtn" class="nav-btn" style="display: none;">Dashboard Admin</button>
+                    <button id="moderatorDashboardBtn" class="nav-btn" style="display: none;">Dashboard Modérateur</button>
+                </div>
+                <div class="header-center">
+                    <div class="global-search-bar" id="global-search-bar">
+                        <input type="text" id="global-search-input" placeholder="Rechercher des utilisateurs..." autocomplete="off">
+                        <div id="global-search-results" class="global-search-results-dropdown"></div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button id="messagesBtn" class="nav-btn messages-btn">Messages</button>
+                    <!-- Notification Bell -->
+                    <div class="notification-bell">
+                        <i class="bi bi-bell-fill" id="notificationBell"></i>
+                        <span class="notification-count" id="notificationCount" style="display: none;">0</span>
+                        <div class="notifications-dropdown" id="notificationsDropdown">
+                            <h4>Notifications</h4>
+                            <div id="notificationsList">
+                                <p class="no-notifications">Aucune notification.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="logoutBtn" class="nav-btn logout-btn">Déconnexion</button>
+                </div>
+            </header>
+            <main> 
+                <div class="stories-section">
+                    <div class="add-story-card" id="addStoryCard">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Ajouter à ma story</span>
+                        <input type="file" id="addStoryInput" accept="image/*,video/*" style="display: none;">
+                    </div>
+                    <div class="stories-container" id="storiesContainer">
+                        <p class="loading-stories">Chargement des stories...</p>
+                    </div>
+                </div>
+
+                <div class="post-creation-form">
+                    <h2>Quoi de neuf ?</h2>
+                    <textarea id="post-description" placeholder="Exprimez-vous..."></textarea>
+                    <!-- Nouvelle UI pour l'upload d'image -->
+                    <div class="image-upload-area">
+                        <label for="post-image-input" class="upload-image-label">
+                            <i class="bi bi-image"></i> Choisir une image
+                        </label>
+                        <input type="file" id="post-image-input" accept="image/*" style="display: none;">
+                        <div id="post-image-preview-container" style="display: none;">
+                            <img id="post-image-preview" src="" alt="Aperçu de l'image" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px;">
+                            <button id="clear-image-button" class="btn btn-danger btn-sm" style="margin-top: 10px;">Supprimer l'image</button>
+                        </div>
+                    </div>
+                    <button id="submit-post-button">Publier</button>
+                </div>
+                <div id="posts-container">
+                    <!-- Le contenu des posts, amis, invitations, profil, ou messagerie sera chargé ici par JavaScript -->
+                </div>
+            </main>
+            <footer>
+                <p>&copy; Mon Réseau Social 2023</p>
+            </footer>
+        </div>
+
+                <!-- Dashboard Administrateur -->
+        <div id="admin-dashboard-view" class="dashboard-view" style="display: none;">
+            <header class="main-header">
+                <div class="header-left">
+                    <button id="newsFeedBtnAdmin" class="nav-btn">Fil d'actualité</button>
+                    <button id="adminDashboardBtnActive" class="nav-btn active">Dashboard Admin</button>
+                </div>
+                <div class="header-center"></div>
+                <div class="header-right">
+                    <button id="admin-logout-btn" class="nav-btn logout-btn">Déconnexion</button>
+                </div>
+            </header>
+            <main>
+                <h2>Dashboard Administrateur</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Utilisateurs</h3>
+                        <p id="stat-total-users">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Posts</h3>
+                        <p id="stat-total-posts">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Modérateurs</h3>
+                        <p id="stat-total-moderators">...</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h3>Gestion des Modérateurs</h3>
+                    <div class="form-group">
+                        <input type="email" id="new-moderator-email" placeholder="Email du nouveau mod\u00e9rateur">
+                        <input type="password" id="new-moderator-password" placeholder="Mot de passe">
+                        <input type="text" id="new-moderator-first-name" placeholder="Pr\u00e9nom">
+                        <input type="text" id="new-moderator-last-name" placeholder="Nom">
+                        <button id="add-moderator-btn" class="auth-button secondary-button">Ajouter Mod\u00e9rateur</button>
+                        <div id="addModeratorMessage" class="message-box" style="display: none;"></div>
+                    </div>
+                    <h4>Liste des Modérateurs</h4>
+                    <ul id="moderators-list" class="dashboard-list">
+                        <li>Chargement des modérateurs...</li>
+                    </ul>
+                </div>
+
+                <!-- Section Gestion des Articles (pour Admin) -->
+                <div class="dashboard-section">
+                    <h3>Gestion des Articles</h3>
+                    <h4>Articles en attente de modération</h4>
+                    <ul id="admin-moderation-posts-list" class="dashboard-list">
+                        <li>Chargement des articles...</li>
+                    </ul>
+                </div>
+
+                <!-- Section Gestion des Utilisateurs (pour Admin) -->
+                <div class="dashboard-section">
+                    <h3>Gestion des Utilisateurs</h3>
+                    <h4>Utilisateurs à surveiller / bloquer</h4>
+                    <ul id="admin-moderation-users-list" class="dashboard-list">
+                        <li>Chargement des utilisateurs...</li>
+                    </ul>
+                </div>
+            </main>
+            <footer>
+                <p>&copy; Mon Réseau Social 2023</p>
+            </footer>
+        </div>
+
+        <!-- Dashboard Modérateur -->
+        <div id="moderator-dashboard-view" class="dashboard-view" style="display: none;">
+            <header class="main-header">
+                <div class="header-left">
+                    <button id="newsFeedBtnModerator" class="nav-btn">Fil d'actualité</button>
+                    <button id="moderatorDashboardBtnActive" class="nav-btn active">Dashboard Modérateur</button>
+                </div>
+                <div class="header-center"></div>
+                <div class="header-right">
+                    <button id="moderator-logout-btn" class="nav-btn logout-btn">Déconnexion</button>
+                </div >
+            </header>
+            <main>
+                <h2>Dashboard Modérateur</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Posts Signalés</h3>
+                        <p id="stat-reported-posts">...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Utilisateurs Bloqués</h3>
+                        <p id="stat-blocked-users">...</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h3>Gestion des Articles</h3>
+                    <h4>Articles en attente de modération</h4>
+                    <ul id="moderator-moderation-posts-list" class="dashboard-list">
+                        <li>Chargement des articles...</li>
+                    </ul>
+                </div>
+
+                <div class="dashboard-section">
+                    <h3>Gestion des Utilisateurs</h3>
+                    <h4>Utilisateurs à surveiller / bloquer</h4>
+                    <ul id="moderator-moderation-users-list" class="dashboard-list">
+                        <li>Chargement des utilisateurs...</li>
+                    </ul>
+                </div>
+            </main>
+            <footer>
+                <p>&copy; Mon Réseau Social 2023</p>
+            </footer>
+        </div>
+
+    </div>
+
+    <!-- Story Viewer Modal -->
+    <div id="storyViewerModal" class="story-viewer-modal" style="display: none;">
+        <div class="story-viewer-content">
+            <button class="close-story-viewer">&times;</button>
+            <button class="prev-story-btn">&lt;</button>
+            <div class="story-media-wrapper">
+                <div class="story-progress-bar-container"></div>
+                <img src="" alt="Story Media" class="story-media" style="display: none;">
+                <video src="" controls class="story-media" style="display: none;"></video>
+                <div class="story-info">
+                    <img src="" alt="User Avatar" class="story-user-avatar">
+                    <span class="story-user-name"></span>
+                </div>
+            </div>
+            <button class="next-story-btn">&gt;</button>
+            <div class="story-interactions">
+                <div class="story-reaction-bar">
+                    <span class="emoji story-emoji" data-reaction-type="like">👍</span>
+                    <span class="emoji story-emoji" data-reaction-type="love">❤️</span>
+                    <span class="emoji story-emoji" data-reaction-type="haha">😂</span>
+                    <span class="emoji story-emoji" data-reaction-type="wouah">😮</span>
+                    <span class="emoji story-emoji" data-reaction-type="triste">😢</span>
+                    <span class="emoji story-emoji" data-reaction-type="colere">😡</span>
+                </div>
+                <input type="text" class="story-reply-input" placeholder="Répondre à cette story (appuyez sur Entrée pour envoyer)...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Viewer Modal (pour modérateur) -->
+    <div id="postViewerModal" class="post-viewer-modal" style="display: none;">
+        <div class="post-viewer-content">
+            <button class="close-btn" id="closePostViewerModal">&times;</button>
+            <div id="postViewerContentDetails">
+                <!-- Les détails du post seront chargés ici -->
+            </div>
+        </div>
+    </div>
+
+
+<script>
+      // Définition des URLs de base pour les appels API et les ressources statiques
+    const BASE_PROJECT_URL = 'http://localhost/reseau/'; // Assurez-vous que c'est le bon chemin
+    const BASE_API_URL = BASE_PROJECT_URL + 'api/';
+    const BASE_ASSETS_URL = BASE_PROJECT_URL + 'assets/';
+    const DEFAULT_AVATAR_URL = BASE_ASSETS_URL + 'images/default-avatar.png';
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+  
+    // Function to manage active navigation button (moved to global scope within DOMContentLoaded)
+    const setActiveButton = (button) => {
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        if (button) {
+            button.classList.add('active');
+        }
+    };
+
+    // --- Éléments du DOM pour les vues ---
+    const appContainer = document.getElementById('app-container');
+    const registerView = document.getElementById('register-view');
+    const loginView = document.getElementById('login-view');
+    const forgotPasswordView = document.getElementById('forgot-password-view');
+    const resetPasswordView = document.getElementById('reset-password-view');
+    const emailConfirmationView = document.getElementById('email-confirmation-view');
+    const mainAppContent = document.getElementById('main-app-content');
+    const adminDashboardView = document.getElementById('admin-dashboard-view');
+    const moderatorDashboardView = document.getElementById('moderator-dashboard-view');
+
+    // --- Éléments du DOM pour les formulaires et messages ---
+    const registerForm = document.getElementById('registerForm');
+    const registerMessage = document.getElementById('registerMessage');
+    const loginForm = document.getElementById('loginForm');
+    const loginMessage = document.getElementById('loginMessage');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const forgotPasswordMessage = document.getElementById('forgotPasswordMessage');
+    const resetPasswordForm = document.getElementById('resetPasswordForm');
+    const resetPasswordMessage = document.getElementById('resetPasswordMessage');
+    const confirmationMessageDiv = document.getElementById('confirmationMessage');
+
+    // --- Boutons de navigation (dans les formulaires d'auth) ---
+    const showLoginFromRegister = document.getElementById('showLoginFromRegister');
+    const showRegisterFromLogin = document.getElementById('showRegisterFromLogin');
+    const showForgotPassword = document.getElementById('showForgotPassword');
+    const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
+    const backToLoginFromReset = document.getElementById('backToLoginFromReset');
+    const backToLoginFromConfirmation = document.getElementById('backToLoginFromConfirmation');
+
+    // --- Boutons de navigation principaux (dans l'app principale) ---
+    const newsFeedBtn = document.getElementById('newsFeedBtn');
+    const invitationsBtn = document.getElementById('invitationsBtn');
+    const friendsBtn = document.getElementById('friendsBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    const messagesBtn = document.getElementById('messagesBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+    const moderatorDashboardBtn = document.getElementById('moderatorDashboardBtn');
+    
+    // Nouveaux boutons de navigation spécifiques aux dashboards
+    const newsFeedBtnAdmin = document.getElementById('newsFeedBtnAdmin');
+    const adminDashboardBtnActive = document.getElementById('adminDashboardBtnActive');
+    const newsFeedBtnModerator = document.getElementById('newsFeedBtnModerator');
+    const moderatorDashboardBtnActive = document.getElementById('moderatorDashboardBtnActive');
+
+    const adminLogoutBtn = document.getElementById('admin-logout-btn');
+    const moderatorLogoutBtn = document.getElementById('moderator-logout-btn');
+
+
+    // --- Éléments de l'application principale ---
+    const postsContainer = document.getElementById('posts-container');
+    const postCreationForm = document.querySelector('.post-creation-form'); // Référence directe
+    const storiesSection = document.querySelector('.stories-section'); // Référence directe
+    const postDescriptionInput = document.getElementById('post-description');
+    // Nouveaux éléments pour l'upload d'image
+    const postImageInput = document.getElementById('post-image-input');
+    const postImagePreviewContainer = document.getElementById('post-image-preview-container');
+    const postImagePreview = document.getElementById('post-image-preview');
+    const clearImageButton = document.getElementById('clear-image-button');
+
+    const submitPostButton = document.getElementById('submit-post-button');
+    const addStoryCard = document.getElementById('addStoryCard');
+    const addStoryInput = document.getElementById('addStoryInput');
+    const storiesContainer = document.getElementById('storiesContainer');
+    const storyViewerModal = document.getElementById('storyViewerModal');
+    const closeStoryViewerBtn = storyViewerModal.querySelector('.close-story-viewer');
+    const prevStoryBtn = storyViewerModal.querySelector('.prev-story-btn');
+    const nextStoryBtn = storyViewerModal.querySelector('.next-story-btn');
+    const storyMediaElementImg = storyViewerModal.querySelector('.story-media[src=""]');
+    const storyMediaElementVideo = storyViewerModal.querySelector('.story-media[controls]');
+    const storyUserAvatar = storyViewerModal.querySelector('.story-user-avatar');
+    const storyUserName = storyViewerModal.querySelector('.story-user-name');
+    const storyProgressBarContainer = storyViewerModal.querySelector('.story-progress-bar-container');
+    const storyReplyInput = storyViewerModal.querySelector('.story-reply-input');
+    const storyReactionBar = storyViewerModal.querySelector('.story-reaction-bar');
+    const storyInfoArea = storyViewerModal.querySelector('.story-info');
+    const globalSearchBar = document.getElementById('global-search-bar');
+    const globalSearchInput = document.getElementById('global-search-input');
+    const globalSearchResults = document.getElementById('global-search-results');
+
+    // Nouveaux éléments pour la modal de visualisation de post
+    const postViewerModal = document.getElementById('postViewerModal');
+    const closePostViewerModalBtn = document.getElementById('closePostViewerModal');
+    const postViewerContentDetails = document.getElementById('postViewerContentDetails');
+
+    // Nouveaux éléments pour les notifications
+    const notificationBell = document.getElementById('notificationBell');
+    const notificationCount = document.getElementById('notificationCount');
+    const notificationsDropdown = document.getElementById('notificationsDropdown');
+    const notificationsList = document.getElementById('notificationsList');
+
+
+    let pressTimer;
+    const LONG_PRESS_THRESHOLD = 500;
+
+    let allActiveStories = [];
+    let currentStoryUserIndex = 0;
+    let currentStoryIndexInUserStories = 0;
+    let storyPlaybackTimeout;
+    let progressBarInterval;
+
+    // --- Variables de session ---
+    let currentUserId = sessionStorage.getItem('userId');
+    let currentUserRole = sessionStorage.getItem('userRole'); // 'client', 'admin', 'moderator'
+    let currentUserName = sessionStorage.getItem('userName');
+    let currentUserProfilePic = sessionStorage.getItem('userProfilePic');
+
+
+    // --- Fonctions utilitaires pour l'affichage des vues ---
+    const hideAllViews = () => {
+        registerView.style.display = 'none';
+        loginView.style.display = 'none';
+        forgotPasswordView.style.display = 'none';
+        resetPasswordView.style.display = 'none';
+        emailConfirmationView.style.display = 'none';
+        mainAppContent.style.display = 'none';
+        adminDashboardView.style.display = 'none';
+        moderatorDashboardView.style.display = 'none';
+
+        // Pour s'assurer que les vues d'authentification sont centrées
+        document.body.style.display = 'flex';
+        document.body.style.flexDirection = 'column';
+        document.body.style.justifyContent = 'center';
+        document.body.style.alignItems = 'center';
+        document.body.style.minHeight = '100vh';
+    };
+
+    const showView = (viewElement) => {
+        hideAllViews(); // Cache tout d'abord
+        viewElement.style.display = 'block'; // Puis affiche la vue demandée
+
+        // Si c'est une vue principale de l'application, ajuster le body pour qu'il prenne toute la largeur
+        if (viewElement === mainAppContent || viewElement === adminDashboardView || viewElement === moderatorDashboardView) {
+            document.body.style.display = 'block';
+            document.body.style.flexDirection = 'initial';
+            document.body.style.justifyContent = 'initial';
+            document.body.style.alignItems = 'initial';
+            document.body.style.minHeight = 'auto'; // Laisse la hauteur s'adapter au contenu
+        }
+    };
+
+    const displayMessage = (element, message, type) => {
+        element.textContent = message;
+        element.className = `message-box ${type}`;
+        element.style.display = 'block';
+    };
+
+    // --- Logique de routage initial (basé sur l'URL et la session) ---
+    const handleInitialRoute = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        const token = urlParams.get('token');
+
+        if (action === 'confirm_email' && token) {
+            showView(emailConfirmationView);
+            await confirmEmail(token);
+        } else if (action === 'reset_password' && token) {
+            showView(resetPasswordView);
+            // Stocke le jeton pour le formulaire de réinitialisation
+            resetPasswordForm.dataset.resetToken = token;
+        } else if (currentUserId && currentUserRole) {
+            // Utilisateur déjà connecté, affiche le contenu approprié selon le rôle
+            if (currentUserRole === 'client') {
+                showView(mainAppContent);
+                loadNewsFeedPosts();
+                loadStories();
+                updateMainAppContentVisibility(true); // Afficher les éléments spécifiques au client
+                fetchNotifications(); // Charger les notifications au démarrage de l'app client
+                setInterval(fetchNotifications, 30000); // Rafraîchir les notifications toutes les 30 secondes
+            } else if (currentUserRole === 'admin') {
+                showView(adminDashboardView);
+                displayAdminDashboard(); // Charger les données du dashboard admin
+                updateMainAppContentVisibility(false); // Masquer les éléments spécifiques au client
+            } else if (currentUserRole === 'moderator') {
+                showView(moderatorDashboardView);
+                displayModeratorDashboard(); // Charger les données du dashboard modérateur
+                updateMainAppContentVisibility(false); // Masquer les éléments spécifiques au client
+            }
+            updateAdminModeratorButtonsVisibility(); // Masquer/afficher les boutons admin/modérateur dans le header
+        } else {
+            // Pas d'action spécifique ni d'utilisateur connecté, affiche la page d'inscription
+            showView(registerView);
+        }
+    };
+
+    // Gère la visibilité des éléments spécifiques à l'application principale (client)
+   const updateMainAppContentVisibility = (isNewsFeed) => {
+    // Gestion des éléments spécifiques au fil d'actualité
+    if (storiesSection) { 
+        storiesSection.style.display = isNewsFeed ? 'flex' : 'none'; 
+    }
+    
+    if (postCreationForm) { 
+        postCreationForm.style.display = isNewsFeed ? 'block' : 'none'; 
+    }
+
+    // Ne jamais cacher les boutons de navigation et la barre de recherche
+    // (ils sont gérés séparément et doivent toujours être visibles)
+    
+    // Si ce n'est pas le fil d'actualité, vider le conteneur
+    if (!isNewsFeed) {
+        postsContainer.innerHTML = '';
+    }
+};
+    // Gère la visibilité des boutons "Dashboard Admin" et "Dashboard Modérateur" dans le header
+    const updateAdminModeratorButtonsVisibility = () => {
+        if (currentUserRole === 'admin') {
+            if (adminDashboardBtn) adminDashboardBtn.style.display = 'inline-block';
+            if (moderatorDashboardBtn) moderatorDashboardBtn.style.display = 'none';
+        } else if (currentUserRole === 'moderator') {
+            if (moderatorDashboardBtn) moderatorDashboardBtn.style.display = 'inline-block';
+            if (adminDashboardBtn) adminDashboardBtn.style.display = 'none';
+        } else {
+            if (adminDashboardBtn) adminDashboardBtn.style.display = 'none';
+            if (moderatorDashboardBtn) moderatorDashboardBtn.style.display = 'none';
+        }
+    };
+
+    // --- Fonctions d'authentification ---
+
+    const confirmEmail = async (token) => {
+        try {
+            const response = await fetch(`${BASE_API_URL}confirm_email.php?token=${token}`);
+            const data = await response.json();
+            if (data.success) {
+                displayMessage(confirmationMessageDiv, data.message, 'success');
+            } else {
+                displayMessage(confirmationMessageDiv, data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la confirmation d\'email:', error);
+            displayMessage(confirmationMessageDiv, 'Erreur réseau lors de la confirmation de votre email.', 'error');
+        } finally {
+            document.getElementById('backToLoginFromConfirmation').style.display = 'inline-block';
+        }
+    };
+
+    // --- Gestion des événements des formulaires ---
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('register-first-name').value.trim();
+        const lastName = document.getElementById('register-last-name').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value.trim();
+
+        displayMessage(registerMessage, 'Inscription en cours...', 'info');
+
+        try {
+            const response = await fetch(`${BASE_API_URL}register.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                displayMessage(registerMessage, data.message, 'success');
+                registerForm.reset(); // Vider le formulaire
+                // Optionnel: rediriger vers la page de connexion après un court délai
+                setTimeout(() => showView(loginView), 3000);
+            } else {
+                displayMessage(registerMessage, data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de l\'inscription:', error);
+            displayMessage(registerMessage, 'Erreur réseau. Veuillez réessayer.', 'error');
+        }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        displayMessage(loginMessage, 'Connexion en cours...', 'info');
+
+        try {
+            const formData = new FormData(); // Utiliser FormData car login.php attend $_POST
+            formData.append('email', email);
+            formData.append('password', password);
+
+            const response = await fetch(`${BASE_API_URL}login.php`, {
+                method: 'POST',
+                body: formData // Pas de Content-Type pour FormData, le navigateur le gère
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                displayMessage(loginMessage, data.message, 'success');
+                sessionStorage.setItem('userId', data.user.user_id);
+                sessionStorage.setItem('userRole', data.user.role);
+                sessionStorage.setItem('userName', data.user.first_name + ' ' + data.user.last_name);
+                sessionStorage.setItem('userProfilePic', data.user.profile_picture_url || ''); // Store profile picture URL
+                currentUserId = data.user.user_id;
+                currentUserRole = data.user.role;
+                currentUserName = data.user.first_name + ' ' + data.user.last_name;
+                currentUserProfilePic = data.user.profile_picture_url || '';
+
+
+                // Rediriger ou afficher le contenu approprié en fonction du rôle
+                if (currentUserRole === 'client') {
+                    showView(mainAppContent);
+                    loadNewsFeedPosts();
+                    loadStories();
+                    updateMainAppContentVisibility(true);
+                    fetchNotifications(); // Charger les notifications au démarrage de l'app client
+                    setInterval(fetchNotifications, 30000); // Rafraîchir les notifications toutes les 30 secondes
+                } else if (currentUserRole === 'admin') {
+                    showView(adminDashboardView);
+                    displayAdminDashboard(); // Charger les données du dashboard admin
+                    updateMainAppContentVisibility(false);
+                } else if (currentUserRole === 'moderator') {
+                    showView(moderatorDashboardView);
+                    displayModeratorDashboard(); // Charger les données du dashboard modérateur
+                    updateMainAppContentVisibility(false);
+                }
+                updateAdminModeratorButtonsVisibility(); // Afficher les bons boutons dans le header
+            } else {
+                displayMessage(loginMessage, data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la connexion:', error);
+            displayMessage(loginMessage, 'Erreur réseau. Veuillez réessayer.', 'error');
+        }
+    });
+
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-email').value.trim();
+
+        displayMessage(forgotPasswordMessage, 'Envoi du lien de réinitialisation...', 'info');
+
+        try {
+            const response = await fetch(`${BASE_API_URL}forgot_password.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                displayMessage(forgotPasswordMessage, data.message, 'success');
+                forgotPasswordForm.reset();
+                setTimeout(() => showView(loginView), 5000); // Retour à la connexion après 5s
+            } else {
+                displayMessage(forgotPasswordMessage, data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la demande de mot de passe oublié:', error);
+            displayMessage(forgotPasswordMessage, 'Erreur réseau. Veuillez réessayer.', 'error');
+        }
+    });
+
+    resetPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = resetPasswordForm.dataset.resetToken;
+        const newPassword = document.getElementById('reset-new-password').value.trim();
+        const confirmPassword = document.getElementById('reset-confirm-password').value.trim();
+
+        if (newPassword !== confirmPassword) {
+            displayMessage(resetPasswordMessage, 'Les mots de passe ne correspondent pas.', 'error');
+            return;
+        }
+
+        displayMessage(resetPasswordMessage, 'Réinitialisation du mot de passe...', 'info');
+
+        try {
+            const response = await fetch(`${BASE_API_URL}reset_password.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, new_password: newPassword })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                displayMessage(resetPasswordMessage, data.message, 'success');
+                resetPasswordForm.reset();
+                delete resetPasswordForm.dataset.resetToken; // Supprimer le jeton
+                setTimeout(() => showView(loginView), 3000); // Retour à la connexion après 3s
+            } else {
+                displayMessage(resetPasswordMessage, data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la réinitialisation du mot de passe:', error);
+            displayMessage(resetPasswordMessage, 'Erreur réseau. Veuillez réessayer.', 'error');
+        }
+    });
+
+    // --- Gestion des changements de vue (boutons de navigation auth) ---
+    showLoginFromRegister.addEventListener('click', (e) => { e.preventDefault(); showView(loginView); });
+    showRegisterFromLogin.addEventListener('click', (e) => { e.preventDefault(); showView(registerView); });
+    showForgotPassword.addEventListener('click', (e) => { e.preventDefault(); showView(forgotPasswordView); });
+    backToLoginFromForgot.addEventListener('click', (e) => { e.preventDefault(); showView(loginView); });
+    backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showView(loginView); });
+    backToLoginFromConfirmation.addEventListener('click', (e) => { e.preventDefault(); showView(loginView); });
+
+    // --- Gérer la déconnexion ---
+    const performLogout = () => {
+        sessionStorage.clear(); // Supprime toutes les informations de session
+        currentUserId = null;
+        currentUserRole = null;
+        currentUserName = null;
+        currentUserProfilePic = null;
+        // Nettoyer l'intervalle de rafraîchissement des messages si actif
+        if (window.messageRefreshInterval) {
+            clearInterval(window.messageRefreshInterval);
+            window.messageRefreshInterval = null;
+        }
+        showView(loginView); // Retour à la page de connexion
+    };
+
+    logoutBtn.addEventListener('click', performLogout);
+    if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', performLogout);
+    if (moderatorLogoutBtn) moderatorLogoutBtn.addEventListener('click', performLogout);
+
+
+    // --- Story Functions ---
+
+    // Load and display stories in the horizontal scrollable container
+    const loadStories = async () => {
+        try {
+            const response = await fetch(`${BASE_API_URL}get_stories.php`);
+            const data = await response.json();
+
+            if (data.success && data.stories.length > 0) {
+                const groupedStories = {};
+                for (const story of data.stories) {
+                    if (!groupedStories[story.user_id]) {
+                        groupedStories[story.user_id] = {
+                            user_id: story.user_id,
+                            first_name: story.first_name,
+                            last_name: story.last_name,
+                            profile_picture_url: story.profile_picture_url,
+                            stories: []
+                        };
+                    }
+                    groupedStories[story.user_id].stories.push({
+                        story_id: story.latest_story_id,
+                        media_url: story.latest_media_url,
+                        created_at: story.latest_story_created_at
+                    });
+                }
+                
+                allActiveStories = Object.values(groupedStories);
+
+                let storiesHtml = '';
+                allActiveStories.forEach((userStory, index) => {
+                    const avatarSrc = userStory.profile_picture_url ? `${BASE_PROJECT_URL}${userStory.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                    storiesHtml += `
+                        <div class="story-card" data-user-id="${userStory.user_id}" data-user-story-index="${index}">
+                            <img src="${avatarSrc}" alt="${userStory.first_name || 'Utilisateur'}'s Story">
+                            <span>${userStory.first_name || 'Inconnu'}</span>
+                        </div>
+                    `;
+                });
+                storiesContainer.innerHTML = storiesHtml;
+
+                storiesContainer.querySelectorAll('.story-card').forEach(card => {
+                    card.addEventListener('click', (event) => {
+                        const targetUserId = card.dataset.userId;
+                        const userStoryIndex = parseInt(card.dataset.userStoryIndex);
+                        openStoryViewer(targetUserId, userStoryIndex, 0);
+                    });
+                });
+
+            } else {
+                storiesContainer.innerHTML = '<p class="no-stories">Aucune story active pour le moment.</p>';
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des stories:', error);
+            storiesContainer.innerHTML = '<p class="error-stories">Erreur de chargement des stories.</p>';
+        }
+    };
+
+    const openStoryViewer = async (targetUserId, userIndexInAllStories, initialStoryIndex = 0) => {
+        if (!currentUserId) { alert("Veuillez vous connecter pour voir les stories."); return; }
+        
+        try {
+            const response = await fetch(`${BASE_API_URL}get_stories.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: targetUserId })
+            });
+            const data = await response.json();
+
+            if (data.success && data.stories.length > 0) {
+                const userStories = data.stories;
+                const userInfo = userStories[0];
+
+                currentStoryUserIndex = userIndexInAllStories;
+                currentStoryIndexInUserStories = initialStoryIndex;
+                allActiveStories[userIndexInAllStories].stories = userStories;
+
+                storyUserAvatar.src = userInfo.profile_picture_url ? `${BASE_PROJECT_URL}${userInfo.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                storyUserName.textContent = `${userInfo.first_name || 'Inconnu'} ${userInfo.last_name || ''}`;
+                storyInfoArea.dataset.userId = userInfo.user_id;
+
+                storyViewerModal.style.display = 'flex';
+                displayCurrentStory();
+            } else {
+                alert("Impossible de charger les stories de cet utilisateur.");
+                console.error("No stories found for user ID:", targetUserId);
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement des stories de l'utilisateur:", error);
+            alert("Une erreur est survenue lors du chargement des stories.");
+        }
+    };
+
+    const displayCurrentStory = () => {
+        clearTimeout(storyPlaybackTimeout);
+        clearInterval(progressBarInterval);
+        storyProgressBarContainer.innerHTML = '';
+
+        const currentUserStories = allActiveStories[currentStoryUserIndex].stories;
+        const currentStory = currentUserStories[currentStoryIndexInUserStories];
+
+        if (!currentStory) { console.error("No story found at current index."); closeStoryViewer(); return; }
+
+        storyMediaElementImg.style.display = 'none';
+        storyMediaElementVideo.style.display = 'none';
+        storyMediaElementImg.src = '';
+        storyMediaElementVideo.src = '';
+        storyMediaElementVideo.pause();
+
+        const mediaUrl = `${BASE_PROJECT_URL}${currentStory.media_url}`;
+        const isVideo = currentStory.media_url.match(/\.(mp4|webm)$/i);
+
+        storyReplyInput.value = '';
+        storyReactionBar.style.display = 'flex';
+
+        if (isVideo) {
+            storyMediaElementVideo.src = mediaUrl;
+            storyMediaElementVideo.style.display = 'block';
+            storyMediaElementVideo.load();
+            storyMediaElementVideo.play();
+
+            storyMediaElementVideo.onended = () => { showNextStory(); };
+            storyMediaElementVideo.onloadedmetadata = () => {
+                startProgressBar(storyMediaElementVideo.duration * 1000);
+                currentStory._startTime = Date.now();
+            };
+        } else {
+            storyMediaElementImg.src = mediaUrl;
+            storyMediaElementImg.style.display = 'block';
+            currentStory._startTime = Date.now();
+            startProgressBar(5000);
+            storyPlaybackTimeout = setTimeout(showNextStory, 5000);
+        }
+
+        currentUserStories.forEach((_, index) => {
+            const progressBar = document.createElement('div');
+            progressBar.classList.add('story-progress-bar');
+            const innerBar = document.createElement('div');
+            innerBar.classList.add('story-progress-bar-inner');
+            progressBar.appendChild(innerBar);
+            storyProgressBarContainer.appendChild(progressBar);
+
+            if (index < currentStoryIndexInUserStories) { innerBar.style.width = '100%'; }
+        });
+    };
+
+    const startProgressBar = (duration) => {
+        const currentProgressBarInner = storyProgressBarContainer.children[currentStoryIndexInUserStories]?.querySelector('.story-progress-bar-inner');
+        if (currentProgressBarInner) {
+            currentProgressBarInner.style.transition = `width ${duration / 1000}s linear`;
+            currentProgressBarInner.style.width = '100%';
+        }
+    };
+
+    const pauseStoryPlayback = () => {
+        clearTimeout(storyPlaybackTimeout);
+        clearInterval(progressBarInterval);
+        if (storyMediaElementVideo.style.display === 'block') { storyMediaElementVideo.pause(); }
+        const currentProgressBarInner = storyProgressBarContainer.children[currentStoryIndexInUserStories]?.querySelector('.story-progress-bar-inner');
+        if (currentProgressBarInner) {
+            currentProgressBarInner.style.transition = 'none';
+            currentProgressBarInner.style.width = getComputedStyle(currentProgressBarInner).width;
+            const currentUserStories = allActiveStories[currentStoryUserIndex].stories;
+            const currentStory = currentUserStories[currentStoryIndexInUserStories];
+            currentStory._pauseTime = Date.now();
+        }
+    };
+
+    const resumeStoryPlayback = () => {
+        const currentUserStories = allActiveStories[currentStoryUserIndex].stories;
+        const currentStory = currentUserStories[currentStoryIndexInUserStories];
+        if (!currentStory) return;
+
+        const isVideo = currentStory.media_url.match(/\.(mp4|webm)$/i);
+        const currentProgressBarInner = storyProgressBarContainer.children[currentStoryIndexInUserStories]?.querySelector('.story-progress-bar-inner');
+
+        if (currentProgressBarInner) {
+            const currentWidthPx = parseFloat(getComputedStyle(currentProgressBarInner).width);
+            const totalWidthPx = parseFloat(getComputedStyle(currentProgressBarInner.parentElement).width);
+            const progressRatio = currentWidthPx / totalWidthPx;
+
+            let totalDurationMs;
+            if (isVideo) { totalDurationMs = storyMediaElementVideo.duration * 1000; storyMediaElementVideo.play(); }
+            else { totalDurationMs = 5000; }
+
+            const remainingTime = totalDurationMs * (1 - progressRatio);
+
+            if (remainingTime > 0) {
+                currentProgressBarInner.style.transition = `width ${remainingTime / 1000}s linear`;
+                currentProgressBarInner.style.width = '100%';
+                storyPlaybackTimeout = setTimeout(showNextStory, remainingTime);
+            } else { showNextStory(); }
+        } else { displayCurrentStory(); }
+    };
+
+    const showNextStory = () => {
+        const currentUserStories = allActiveStories[currentStoryUserIndex].stories;
+        if (currentStoryIndexInUserStories < currentUserStories.length - 1) {
+            currentStoryIndexInUserStories++;
+            displayCurrentStory();
+        } else { showNextUserStory(); }
+    };
+
+    const showPreviousStory = () => {
+        if (currentStoryIndexInUserStories > 0) {
+            currentStoryIndexInUserStories--;
+            displayCurrentStory();
+        } else { showPreviousUserStory(); }
+    };
+
+    const showNextUserStory = () => {
+        if (currentStoryUserIndex < allActiveStories.length - 1) {
+            currentStoryUserIndex++;
+            currentStoryIndexInUserStories = 0;
+            const nextUserId = allActiveStories[currentStoryUserIndex].user_id;
+            const nextUserIndex = currentStoryUserIndex;
+            openStoryViewer(nextUserId, nextUserIndex, 0);
+        } else { closeStoryViewer(); }
+    };
+
+    const showPreviousUserStory = () => {
+        if (currentStoryUserIndex > 0) {
+            currentStoryUserIndex--;
+            const previousUserStories = allActiveStories[currentStoryUserIndex].stories;
+            currentStoryIndexInUserStories = previousUserStories.length - 1;
+            const prevUserId = allActiveStories[currentStoryUserIndex].user_id;
+            const prevUserIndex = currentStoryUserIndex;
+            openStoryViewer(prevUserId, prevUserIndex, currentStoryIndexInUserStories);
+        } else { closeStoryViewer(); }
+    };
+
+    const closeStoryViewer = () => {
+        storyViewerModal.style.display = 'none';
+        clearTimeout(storyPlaybackTimeout);
+        clearInterval(progressBarInterval);
+        storyMediaElementVideo.pause();
+        storyMediaElementVideo.src = '';
+        storyMediaElementImg.src = '';
+        storyProgressBarContainer.innerHTML = '';
+    };
+
+    closeStoryViewerBtn.addEventListener('click', closeStoryViewer);
+    nextStoryBtn.addEventListener('click', showNextStory);
+    prevStoryBtn.addEventListener('click', showPreviousStory);
+
+    document.addEventListener('keydown', (e) => {
+        if (storyViewerModal.style.display === 'flex') {
+            if (e.key === 'ArrowRight') { showNextStory(); }
+            else if (e.key === 'ArrowLeft') { showPreviousStory(); }
+            else if (e.key === 'Escape') { closeStoryViewer(); }
+        }
+    });
+
+    addStoryCard.addEventListener('click', () => {
+        if (!currentUserId) { alert("Veuillez vous connecter pour ajouter une story."); return; }
+        addStoryInput.click();
+    });
+
+    addStoryInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.type.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = () => {
+                window.URL.revokeObjectURL(video.src);
+                if (video.duration > 60) { alert("La vidéo ne doit pas durer plus d'une minute."); addStoryInput.value = ''; return; }
+                uploadStoryFile(file);
+            };
+            video.src = URL.createObjectURL(file);
+        } else { uploadStoryFile(file); }
+    });
+
+    const uploadStoryFile = async (file) => {
+        const formData = new FormData();
+        formData.append('user_id', currentUserId);
+        formData.append('media', file);
+
+        try {
+            const response = await fetch(`${BASE_API_URL}create_story.php`, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.success) { alert('Story ajoutée avec succès !'); loadStories(); }
+            else { alert('Erreur lors de l\'ajout de la story : ' + (data.message || 'Erreur inconnue')); }
+        }
+        catch (error) {
+            console.error('Erreur réseau lors de l\'ajout de la story:', error);
+            alert('Une erreur est survenue lors de l\'ajout de la story. Veuillez réessayer.');
+        } finally { addStoryInput.value = ''; }
+    };
+
+    const sendStoryReply = async () => {
+        const replyText = storyReplyInput.value.trim();
+        if (!replyText) { alert("Veuillez écrire un message pour répondre."); return; }
+        if (!currentUserId) { alert("Veuillez vous connecter pour répondre aux stories."); return; }
+
+        const currentStory = allActiveStories[currentStoryUserIndex].stories[currentStoryIndexInUserStories];
+        const receiverId = currentStory.user_id;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}send_story_reply.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender_id: currentUserId, receiver_id: receiverId, message_text: replyText, story_id: currentStory.story_id })
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') { alert('Réponse envoyée !'); storyReplyInput.value = ''; closeStoryViewer(); }
+            else { alert('Erreur lors de l\'envoi de la réponse : ' + (data.message || 'Erreur inconnue')); }
+        } catch (error) {
+            console.error('Erreur réseau lors de l\'envoi de la réponse:', error);
+            alert('Une erreur est survenue lors de l\'envoi de la réponse. Veuillez réessayer.');
+        } finally { resumeStoryPlayback(); }
+    };
+
+    storyReplyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendStoryReply(); }
+    });
+
+    storyReplyInput.addEventListener('focus', pauseStoryPlayback);
+    storyReplyInput.addEventListener('blur', resumeStoryPlayback);
+
+    storyReactionBar.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('story-emoji')) {
+            const reactionType = e.target.dataset.reactionType;
+            const currentStory = allActiveStories[currentStoryUserIndex].stories[currentStoryIndexInUserStories];
+            const storyId = currentStory.story_id;
+
+            if (!currentUserId) { alert("Veuillez vous connecter pour réagir aux stories."); return; }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}react_story.php`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ story_id: storyId, user_id: currentUserId, reaction: reactionType })
+                });
+                const data = await response.json();
+
+                if (data.success) { alert(`Vous avez réagi avec ${e.target.textContent} !`); closeStoryViewer(); }
+                else { alert('Erreur lors de la réaction à la story : ' + (data.message || 'Erreur inconnue')); }
+            } catch (error) {
+                console.error('Erreur réseau lors de la réaction à la story:', error);
+                alert('Une erreur est survenue lors de la réaction à la story. Veuillez réessayer.');
+            }
+        }
+    });
+
+    storyInfoArea.addEventListener('click', (e) => {
+        const targetUserId = storyInfoArea.dataset.userId;
+        if (targetUserId) { closeStoryViewer(); displayUserProfile(targetUserId); }
+    });
+
+
+    // --- Logique de recherche globale d'utilisateurs ---
+    if (globalSearchInput) {
+        globalSearchInput.addEventListener('input', async () => {
+            const query = globalSearchInput.value.trim();
+            if (query.length < 2) { globalSearchResults.innerHTML = ''; globalSearchResults.style.display = 'none'; return; }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}global_search_users.php?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                if (data.status === 'success' && data.users && data.users.length > 0) {
+                    let resultsHtml = '';
+                    data.users.forEach(user => {
+                        const avatarSrc = user.profile_picture_url ? `${BASE_PROJECT_URL}${user.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                        resultsHtml += `
+                            <div class="search-result-item" data-user-id="${user.user_id}">
+                                <img src="${avatarSrc}" alt="Photo de ${user.first_name || 'Utilisateur'} ${user.last_name || ''}">
+                                <span>${user.first_name || 'Inconnu'} ${user.last_name || ''}</span>
+                            </div>
+                        `;
+                    });
+                    globalSearchResults.innerHTML = resultsHtml;
+                    globalSearchResults.style.display = 'block';
+
+                    globalSearchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const targetUserId = item.dataset.userId;
+                            displayUserProfile(targetUserId);
+                            globalSearchResults.innerHTML = '';
+                            globalSearchResults.style.display = 'none';
+                            globalSearchInput.value = '';
+                        });
+                    });
+
+                } else { globalSearchResults.innerHTML = '<div class="no-results">Aucun utilisateur trouvé.</div>'; globalSearchResults.style.display = 'block'; }
+            } catch (error) {
+                console.error('Erreur lors de la recherche globale:', error);
+                globalSearchResults.innerHTML = '<div class="no-results">Erreur de chargement des résultats.</div>';
+                globalSearchResults.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!globalSearchInput.contains(event.target) && !globalSearchResults.contains(event.target)) {
+                globalSearchResults.style.display = 'none';
+            }
+        });
+    }
+
+    const handleReaction = async (postId, likeButton, reactionType) => {
+        if (!currentUserId) { alert("Veuillez vous connecter pour réagir aux publications."); return; }
+        try {
+            const response = await fetch(`${BASE_API_URL}react_post.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ post_id: postId, reaction: reactionType, user_id: currentUserId })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                // Mettre à jour le bouton de like/réaction
+                updateLikeButtonUI(likeButton, data.user_reaction_type);
+                // Mettre à jour le compteur de réactions directement
+                const postElement = likeButton.closest('.post');
+                const reactionCountSpan = postElement.querySelector('.reaction-count');
+                if (reactionCountSpan) {
+                    reactionCountSpan.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${data.new_reaction_count || 0}`;
+                }
+                // Créer une notification si la réaction est sur le post d'un autre utilisateur
+                const postOwnerId = postElement.dataset.postOwnerId; // Assurez-vous que cet attribut est défini dans le HTML du post
+                if (postOwnerId && String(postOwnerId) !== String(currentUserId) && reactionType !== '') {
+                    await createNotification(postOwnerId, currentUserId, 'post_reaction', `${currentUserName} a réagi à votre publication avec ${reactionType}.`);
+                }
+            } else { alert('Erreur lors de la réaction au post. Veuillez réessayer.' + (data.message || '')); }
+        } catch (err) {
+            console.error('Erreur lors de la réaction au post:', err);
+            alert('Une erreur est survenue. Veuillez réessayer plus tard.');
+        }
+    };
+
+    const handleSingleLikeClick = async (postId, likeButton, currentReactionType) => {
+        let newReaction = '';
+        if (currentReactionType === '') { newReaction = 'like'; } else { newReaction = ''; }
+        await handleReaction(postId, likeButton, newReaction);
+    };
+
+    const updateLikeButtonUI = (likeButton, reactionType) => {
+        let newLabel = "J'aime"; let newClass = 'like-button';
+        switch (reactionType) {
+            case 'like': newClass = 'like-button like-blue'; newLabel = "J'aime"; break;
+            case 'love': newClass = 'like-button like-love'; newLabel = "J'adore"; break;
+            case 'haha': newClass = 'like-button like-yellow'; newLabel = "Haha"; break;
+            case 'wouah': newClass = 'like-button like-yellow'; newLabel = "Waouh"; break;
+            case 'triste': newClass = 'like-button like-yellow'; newLabel = "Triste"; break;
+            case 'colere': newClass = 'like-button like-angry'; newLabel = "En colère"; break;
+            case '': newClass = 'like-button'; newLabel = "J'aime"; break;
+            default: newClass = 'like-button'; newLabel = "J'aime"; break;
+        }
+        likeButton.className = newClass;
+        likeButton.textContent = newLabel;
+        likeButton.dataset.currentReaction = reactionType;
+    };
+
+    const handleCommentReaction = async (commentId, likeButton, reactionType) => {
+        if (!currentUserId) { alert("Veuillez vous connecter pour réagir aux commentaires."); return; }
+        try {
+            const response = await fetch(`${BASE_API_URL}react_comment.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment_id: commentId, reaction: reactionType, user_id: currentUserId })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                // Mettre à jour le bouton de like/réaction
+                updateCommentLikeButtonUI(likeButton, data.user_reaction_type);
+                // Mettre à jour le compteur de réactions directement
+                const commentItemElement = likeButton.closest('.comment-item');
+                const reactionCountSpan = commentItemElement.querySelector('.comment-reaction-count');
+                if (reactionCountSpan) {
+                    reactionCountSpan.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${data.new_reaction_count || 0}`;
+                }
+                // Créer une notification si la réaction est sur le commentaire d'un autre utilisateur
+                const commentOwnerId = commentItemElement.dataset.commentOwnerId; // Assurez-vous que cet attribut est défini
+                if (commentOwnerId && String(commentOwnerId) !== String(currentUserId) && reactionType !== '') {
+                    await createNotification(commentOwnerId, currentUserId, 'comment_reaction', `${currentUserName} a réagi à votre commentaire avec ${reactionType}.`);
+                }
+            } else { alert('Erreur lors de la réaction au commentaire. Veuillez réessayer.' + (data.message || '')); }
+        } catch (err) {
+            console.error('Erreur lors de la réaction au commentaire:', err);
+            alert('Une erreur est survenue lors de la réaction au commentaire. Veuillez réessayer plus tard.');
+        }
+    };
+
+    const handleSingleCommentLikeClick = async (commentId, likeButton, currentReactionType) => {
+        let newReaction = '';
+        if (currentReactionType === '') { newReaction = 'like'; } else { newReaction = ''; }
+        await handleCommentReaction(commentId, likeButton, newReaction);
+    };
+
+    const updateCommentLikeButtonUI = (likeButton, reactionType) => {
+        let newLabel = "J'aime"; let newClass = 'comment-like-button';
+        switch (reactionType) {
+            case 'like': newClass = 'comment-like-button like-blue'; newLabel = "J'aime"; break;
+            case 'love': newClass = 'comment-like-button like-love'; newLabel = "J'adore"; break;
+            case 'haha': newClass = 'comment-like-button like-yellow'; newLabel = "Haha"; break;
+            case 'wouah': newClass = 'comment-like-button like-yellow'; newLabel = "Waouh"; break;
+            case 'triste': newClass = 'comment-like-button like-yellow'; newLabel = "Triste"; break;
+            case 'colere': newClass = 'comment-like-button like-angry'; newLabel = "En colère"; break;
+            case '': newClass = 'comment-like-button'; newLabel = "J'aime"; break;
+            default: newClass = 'comment-like-button'; newLabel = "J'aime"; break;
+        }
+        likeButton.className = newClass;
+        likeButton.textContent = newLabel;
+        likeButton.dataset.currentReaction = reactionType;
+    };
+
+  const loadCommentsForPost = async (postId, commentsListElement) => {
+        if (!currentUserId) { commentsListElement.innerHTML = '<p>Veuillez vous connecter pour voir les commentaires et interagir.</p>'; return; }
+
+        try {
+            const response = await fetch(`${BASE_API_URL}get_comments.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    post_id: postId, 
+                    user_id: currentUserId,
+                    parent_comment_id: null // IMPORTANT : Ne charger que les commentaires de premier niveau
+                })
+            });
+            const data = await response.json();
+
+            if (data.success && data.comments && data.comments.length > 0) {
+                let commentsHtml = '';
+                for (const comment of data.comments) {
+                    const avatarSrc = comment.profile_picture_url ? `${BASE_PROJECT_URL}${comment.profile_picture_url}` : DEFAULT_AVATAR_URL;
+                    let commentLikeClass = '';
+                    let commentReactionLabel = "J'aime";
+                    
+                    if (comment.user_reaction_type) {
+                        switch (comment.user_reaction_type) {
+                            case 'like': commentLikeClass = 'like-blue'; commentReactionLabel = "J'aime"; break;
+                            case 'love': commentLikeClass = 'like-love'; commentReactionLabel = "J'adore"; break;
+                            case 'haha': commentLikeClass = 'like-yellow'; commentReactionLabel = "Haha"; break;
+                            case 'wouah': commentLikeClass = 'like-yellow'; commentReactionLabel = "Waouh"; break;
+                            case 'triste': commentLikeClass = 'like-yellow'; commentReactionLabel = "Triste"; break;
+                            case 'colere': commentLikeClass = 'like-angry'; commentReactionLabel = "En colère"; break;
+                            default: commentLikeClass = ''; commentReactionLabel = "J'aime"; break;
+                        }
+                    }
+
+                    commentsHtml += `
+                        <div class="comment-item" data-comment-id="${comment.comment_id}" data-comment-owner-id="${comment.user_id || ''}">
+                            <div class="comment-header">
+                                <img class="avatar comment-avatar" src="${avatarSrc}" alt="Avatar de ${comment.first_name || 'Inconnu'}">
+                                <strong>${comment.prenom || 'Inconnu'} ${comment.last_name || ''}</strong>
+                                <span class="comment-time">${new Date(comment.created_at).toLocaleString('fr-FR')}</span>
+                            </div>
+                            <p class="comment-text">${comment.comment_text}</p>
+                            <div class="comment-actions">
+                                <span class="comment-reaction-count">
+                                    <i class="bi bi-hand-thumbs-up"></i> ${comment.comment_reaction_count || 0}
+                                </span>
+                                <div class="reactions comment-reaction-bar" style="display: none;">
+                                    <span class="emoji comment-emoji" data-reaction-type="like">👍 J'aime</span>
+                                    <span class="emoji comment-emoji" data-reaction-type="love">❤ J'adore</span>
+                                    <span class="emoji comment-emoji" data-reaction-type="haha">😂 Haha</span>
+                                    <span class="emoji comment-emoji" data-reaction-type="wouah">😮 Waouh</span>
+                                    <span class="emoji comment-emoji" data-reaction-type="triste">😢 Triste</span>
+                                    <span class="emoji comment-emoji" data-reaction-type="colere">😡 En colère</span>
+                                </div>
+                                <button class="comment-like-button ${commentLikeClass}" 
+                                        data-comment-id="${comment.comment_id}" 
+                                        data-current-reaction="${comment.user_reaction_type || ''}">${commentReactionLabel}</button>
+                                <button class="reply-button" data-comment-id="${comment.comment_id}" data-comment-author-name="${comment.first_name || 'Inconnu'} ${comment.last_name || ''}">Répondre</button>
+                            </div>
+                            <div class="replies-section" id="replies-${comment.comment_id}" style="display: none;">
+                                <div class="replies-list"></div>
+                                <button class="show-more-replies-button" data-comment-id="${comment.comment_id}" style="display: none;">Afficher plus de réponses</button>
+                                <div class="reply-input-area" style="display: none;">
+                                    <input type="text" class="reply-input" placeholder="Répondre...">
+                                    <button class="submit-reply-button" data-comment-id="${comment.comment_id}">Envoyer</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                commentsListElement.innerHTML = commentsHtml;
+            } else { commentsListElement.innerHTML = '<p>Aucun commentaire pour le moment.</p>'; }
+        } catch (err) {
+            console.error('Erreur lors du chargement des commentaires:', err);
+            commentsListElement.innerHTML = '<p>Erreur de chargement des commentaires.</p>';
+        }
+    };
+
+
+    const loadNewsFeedPosts = async () => {
+        // Afficher les éléments spécifiques au fil d'actualité
+         updateMainAppContentVisibility(true);
+
+        try {
+            const response = await fetch(`${BASE_API_URL}get_posts.php`);
+            const postsData = await response.json();
+
+            if (postsData && postsData.status === 'success' && Array.isArray(postsData.posts) && postsData.posts.length > 0) {
+                let allPostsHtml = '';
+                for (const post of postsData.posts) {
+                    const avatarSrc = post.profile_picture_url ? `${BASE_PROJECT_URL}${post.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                    const postImageHtml = post.image_url ? `<img class="post-image" src="../${post.image_url}" alt="Image du post">` : '';
+                    let likeClass = '';
+                    let reactionLabel = "J'aime";
+                    
+                    if (currentUserId) {
+                        try {
+                            const res = await fetch(`${BASE_API_URL}perspostsre.php`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ user_id: currentUserId, post_id: post.post_id })
+                            });
+                            const data = await res.json();
+                            if (data.success && data.reaction) {
+                                const type = data.reaction;
+                                switch (type) {
+                                    case 'like': likeClass = 'like-blue'; reactionLabel = "J'aime"; break;
+                                    case 'love': likeClass = 'like-love'; reactionLabel = "J'adore"; break;
+                                    case 'haha': likeClass = 'like-yellow'; reactionLabel = "Haha"; break;
+                                    case 'triste': likeClass = 'like-yellow'; reactionLabel = "Triste"; break;
+                                    case 'wouah': likeClass = 'like-yellow'; reactionLabel = "Waouh"; break;
+                                    case 'colere': likeClass = 'like-angry'; reactionLabel = "En colère"; break;
+                                    default: likeClass = ''; reactionLabel = "J'aime"; break;
+                                }
+                            }
+                        } catch (err) { console.error("Erreur de récupération de la réaction personnelle:", err); }
+                    }
+
+                    allPostsHtml += `
+                        <div class="post" data-post-id="${post.post_id}" data-post-owner-id="${post.user_id}">
+                            <div class="post-header">
+                                <img class="avatar" src="${avatarSrc}" alt="Avatar de ${post.prenom || 'Inconnu'} ${post.nom || ''}" data-user-id="${post.user_id}">
+                                <div class="user-info">
+                                    <strong>${post.prenom || 'Inconnu'} ${post.nom || ''}</strong>
+                                    <span class="post-time">${new Date(post.created_at).toLocaleString('fr-FR')}</span>
+                                </div>
+                            </div>
+                            <p class="post-description">${post.description}</p>
+                            ${postImageHtml}
+                            <div class="post-stats">
+                                <span class="reaction-count"><i class="bi bi-hand-thumbs-up"></i> ${post.reaction_count || 0}</span>
+                                <span class="comment-count"><i class="bi bi-chat-dots"></i> ${post.comment_count || 0} commentaires</span>
+                            </div>
+                            <div class="post-actions">
+                                <button class="comments-button" data-post-id="${post.post_id}"><i class="bi bi-chat"></i> Afficher les commentaires</button>
+                                <div class="reactions reaction-bar" style="display: none;">
+                                    <span class="emoji" data-reaction-type="like">👍 J'aime</span>
+                                    <span class="emoji" data-reaction-type="love">❤ J'adore</span>
+                                    <span class="emoji" data-reaction-type="haha">😂 Haha</span>
+                                    <span class="emoji" data-reaction-type="wouah">😮 Waouh</span>
+                                    <span class="emoji" data-reaction-type="triste">😢 Triste</span>
+                                    <span class="emoji" data-reaction-type="colere">😡 En colère</span>
+                                </div>
+                                <button class="like-button ${likeClass}" data-post-id="${post.post_id}" data-current-reaction="${likeClass ? likeClass.replace('like-', '') : ''}">${reactionLabel}</button>
+                                <!-- NOUVEAU: Bouton Signaler -->
+                                <button class="report-post-btn" data-post-id="${post.post_id}">
+                                    <i class="bi bi-flag"></i> Signaler
+                                </button>
+                            </div>
+                            <div class="comment-section" id="comments-${post.post_id}" style="display: none">
+                                <input type="text" class="comment-input" placeholder="Ajouter un commentaire...">
+                                <button class="submit-comment-button" data-post-id="${post.post_id}">Commenter</button>
+                                <div class="comments-list"></div>
+                            </div>
+                        </div>`;
+                }
+                postsContainer.innerHTML = allPostsHtml;
+            } else { postsContainer.innerHTML = '<p class="text-center text-muted">Aucun post à afficher pour le moment.</p>'; }
+        } catch (err) {
+            console.error('Erreur lors de la récupération des posts:', err);
+            postsContainer.innerHTML = '<p class="text-center text-danger">Une erreur est survenue lors du chargement des posts. Veuillez réessayer plus tard.</p>';
+        }
+    };
+    const loadRepliesForComment = async (commentId, repliesListElement, offset = 0) => {
+        if (!currentUserId) {
+            repliesListElement.innerHTML = '<p>Veuillez vous connecter pour voir les réponses.</p>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_API_URL}get_comment_replies.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ parent_comment_id: commentId, offset: offset })
+            });
+            const data = await response.json();
+
+            if (data.success && data.replies) {
+                let repliesHtml = '';
+                if (data.replies.length === 0 && offset === 0) {
+                    repliesListElement.innerHTML = '<p class="no-replies">Aucune réponse pour le moment.</p>';
+                } else {
+                    const noRepliesMsg = repliesListElement.querySelector('.no-replies');
+                    if (noRepliesMsg) noRepliesMsg.remove();
+
+                    for (const reply of data.replies) {
+                        const avatarSrc = reply.profile_picture_url ? `${BASE_PROJECT_URL}${reply.profile_picture_url}` : DEFAULT_AVATAR_URL;
+                        
+                        let replyAuthorName = `${reply.prenom || 'Inconnu'} ${reply.nom || ''}`;
+                        let displayAuthor = replyAuthorName;
+
+                        if (reply.parent_comment_first_name && reply.parent_comment_last_name) {
+                            const parentAuthorName = `${reply.parent_comment_first_name} ${reply.parent_comment_last_name}`;
+                            displayAuthor = `<span class="reply-to-chain">${parentAuthorName} &rarr;</span> ${replyAuthorName}`;
+                        }
+                        
+                        repliesHtml += `
+                            <div class="reply-item" data-comment-id="${reply.comment_id}" data-comment-owner-id="${reply.user_id || ''}">
+                                <div class="reply-header">
+                                    <img class="avatar reply-avatar" src="${avatarSrc}" alt="Avatar de ${replyAuthorName}">
+                                    <strong>${displayAuthor}</strong>
+                                    <span class="reply-time">${new Date(reply.created_at).toLocaleString('fr-FR')}</span>
+                                </div>
+                                <p class="reply-text">${reply.comment_text}</p>
+                                <div class="reply-actions">
+                                    <button class="reply-button" data-comment-id="${reply.comment_id}" data-comment-author-name="${replyAuthorName}">Répondre</button>
+                                </div>
+                                <div class="nested-replies-section" id="replies-${reply.comment_id}" style="display: none;">
+                                    <div class="replies-list"></div>
+                                    <button class="show-more-replies-button" data-comment-id="${reply.comment_id}" style="display: none;">Afficher plus de réponses</button>
+                                    <div class="reply-input-area" style="display: none;">
+                                        <input type="text" class="reply-input" placeholder="Répondre...">
+                                        <button class="submit-reply-button" data-comment-id="${reply.comment_id}">Envoyer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    repliesListElement.insertAdjacentHTML('beforeend', repliesHtml);
+                }
+
+                const showMoreButton = repliesListElement.nextElementSibling;
+                if (showMoreButton && showMoreButton.classList.contains('show-more-replies-button')) {
+                    if (data.has_more) {
+                        showMoreButton.style.display = 'block';
+                        showMoreButton.dataset.offset = offset + 10;
+                    } else {
+                        showMoreButton.style.display = 'none';
+                    }
+                }
+
+            } else {
+                if (offset === 0) {
+                    repliesListElement.innerHTML = '<p class="no-replies">Aucune réponse pour le moment.</p>';
+                }
+                const showMoreButton = repliesListElement.nextElementSibling;
+                if (showMoreButton && showMoreButton.classList.contains('show-more-replies-button')) {
+                    showMoreButton.style.display = 'none';
+                }
+                console.error('Erreur lors du chargement des réponses:', data.message || 'Erreur inconnue');
+            }
+        } catch (err) {
+            console.error('Erreur réseau lors du chargement des réponses:', err);
+            if (offset === 0) {
+                repliesListElement.innerHTML = '<p>Erreur de chargement des réponses.</p>';
+            }
+            const showMoreButton = repliesListElement.nextElementSibling;
+            if (showMoreButton && showMoreButton.classList.contains('show-more-replies-button')) {
+                showMoreButton.style.display = 'none';
+            }
+        }
+    };
+
+const submitReply = async (parentCommentId, replyText, repliesListElement, replyInput) => {
+    if (!currentUserId) { alert('Veuillez vous connecter pour répondre.'); return; }
+    if (!replyText) { alert('Veuillez entrer un texte pour votre réponse.'); return; }
+
+    try {
+        const response = await fetch(`${BASE_API_URL}post_comment_reply.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: currentUserId,
+                parent_comment_id: parentCommentId,
+                reply_text: replyText
+            })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Réponse envoyée avec succès !');
+            replyInput.value = ''; // Vider l'input
+            // Recharger les réponses depuis le début pour voir la nouvelle réponse
+            repliesListElement.innerHTML = ''; // Vider avant de recharger
+            await loadRepliesForComment(parentCommentId, repliesListElement, 0);
+
+           
+            const parentCommentElement = repliesListElement.closest('.comment-item');
+            const parentCommentOwnerId = parentCommentElement ? parentCommentElement.dataset.commentOwnerId : null;
+
+            if (parentCommentOwnerId && String(parentCommentOwnerId) !== String(currentUserId)) {
+                await createNotification(parentCommentOwnerId, currentUserId, 'comment_reply', `${currentUserName} a r\u00e9pondu \u00e0 votre commentaire.`);
+            }
+
+        } else {
+            alert('Erreur lors de l\'envoi de la r\u00e9ponse : ' + (data.message || 'Erreur inconnue'));
+        }
+    } catch (error) {
+        console.error('Erreur r\u00e9seau lors de l\'envoi de la r\u00e9ponse:', error);
+        alert('Une erreur est survenue lors de l\'envoi de votre r\u00e9ponse. Veuillez r\u00e9essayer.');
+    }
+};
+
+
+    const loadFriends = async () => {
+        // Cacher les éléments spécifiques au fil d'actualité
+      updateMainAppContentVisibility(false);
+        if (storiesSection) storiesSection.style.display = 'none';
+
+        if (!currentUserId) { postsContainer.innerHTML = '<p class="text-center text-danger">ID utilisateur introuvable. Veuillez vous connecter.</p>'; return; }
+        try {
+            const response = await fetch(`${BASE_API_URL}get_friends.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUserId })
+            });
+
+            if (!response.ok) { throw new Error(`Erreur HTTP ! statut : ${response.status}`); }
+
+            const data = await response.json();
+            let friendsListHtml = `
+                <p><strong>Vos ami(e)s</strong></p>
+                <div class="user-search-section">
+                    <h3>Rechercher parmi vos ami(e)s</h3>
+                    <input type="text" id="friend-search-input" placeholder="Nom d'ami(e)...">
+                    <button id="search-existing-friend-button">Rechercher</button>
+                    <div id="existing-friend-search-results"></div>
+                </div>
+                <p>Vos amis actuels : ${data.count} ami(e)s</p>
+            `;
+
+            if (data.status === 'success') {
+                if (data.friends && data.friends.length > 0) {
+                    for (const friend of data.friends) {
+                        friendsListHtml += `
+                            <div class="friend-item">
+                                <button class="btn btn-link p-0 view-profile-button" data-user-id="${friend.user_id}">
+                                    <img src="${friend.profile_picture_url ? `${BASE_PROJECT_URL}${friend.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`}" alt="Photo de ${friend.prenom || 'Inconnu'} ${friend.nom || ''}" width="50" height="50">
+                                </button>
+                                <p><strong>${friend.prenom || 'Inconnu'} ${friend.nom || ''}</strong></p>
+                            </div>
+                        `;
+                    }
+                } else { friendsListHtml += `<p>Aucun ami trouvé pour le moment.</p>`; }
+            } else { friendsListHtml += `<p>${data.message || 'Erreur lors du chargement des amis.'}</p>`; }
+            postsContainer.innerHTML = friendsListHtml;
+
+            const friendSearchInput = document.getElementById('friend-search-input');
+            const searchExistingFriendButton = document.getElementById('search-existing-friend-button');
+            const existingFriendSearchResults = document.getElementById('existing-friend-search-results');
+
+            if (searchExistingFriendButton) {
+                searchExistingFriendButton.addEventListener('click', async () => {
+                    const query = friendSearchInput.value.trim();
+                    if (query.length < 1) { loadFriends(); return; }
+
+                    try {
+                        const allFriendsResponse = await fetch(`${BASE_API_URL}get_friends.php`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUserId })
+                        });
+                        const allFriendsData = await allFriendsResponse.json();
+
+                        if (allFriendsData.status === 'success' && allFriendsData.friends) {
+                            const filteredFriends = allFriendsData.friends.filter(friend =>
+                                (friend.prenom || '').toLowerCase().includes(query.toLowerCase()) ||
+                                (friend.nom || '').toLowerCase().includes(query.toLowerCase())
+                            );
+
+                            if (filteredFriends.length > 0) {
+                                let resultsHtml = '<h4>Résultats de la recherche parmi vos amis :</h4>';
+                                filteredFriends.forEach(friend => {
+                                    const avatarSrc = friend.profile_picture_url ? `${BASE_PROJECT_URL}${friend.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                                    resultsHtml += `
+                                        <div class="friend-item">
+                                            <button class="btn btn-link p-0 view-profile-button" data-user-id="${friend.user_id}">
+                                                <img src="${avatarSrc}" alt="Photo de ${friend.prenom || 'Inconnu'} ${friend.nom || ''}" width="50" height="50">
+                                            </button>
+                                            <p><strong>${friend.prenom || 'Inconnu'} ${friend.nom || ''}</strong></p>
+                                        </div>
+                                    `;
+                                });
+                                existingFriendSearchResults.innerHTML = resultsHtml;
+                            } else { existingFriendSearchResults.innerHTML = '<p>Aucun ami trouvé correspondant à votre recherche.</p>'; }
+                        } else { existingFriendSearchResults.innerHTML = `<p>Erreur lors du filtrage des amis : ${allFriendsData.message}</p>`; }
+                    } catch (error) {
+                        console.error('Erreur réseau lors de la recherche d\'amis existants:', error);
+                        existingFriendSearchResults.innerHTML = '<p>Une erreur est survenue lors de la recherche. Veuillez réessayer.</p>';
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des amis :', error);
+            postsContainer.innerHTML = `<p>Une erreur est survenue lors de la récupération de vos amis. Veuillez réessayer plus tard.</p>`;
+        }
+    };
+
+    const loadInvitations = async () => {
+        // Cacher les éléments spécifiques au fil d'actualité
+        updateMainAppContentVisibility(false);
+
+        if (!currentUserId) { postsContainer.innerHTML = '<p class="text-center text-danger">Veuillez vous connecter pour voir les invitations.</p>'; return; }
+        try {
+            const response = await fetch(`${BASE_API_URL}get_invitations.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUserId })
+            });
+
+            if (!response.ok) { throw new Error(`Erreur HTTP ! statut : ${response.status}`); }
+
+            const data = await response.json();
+            let invitationsListHtml = `<p><strong>Vos invitations</strong></p>`;
+
+            if (data.status === 'success') {
+                if (data.count === 0) { invitationsListHtml += `<p class="text-center text-muted">Vous n'avez aucune invitation pour le moment.</p>`; }
+                else {
+                    invitationsListHtml += `<p>${data.count} invitation(s)</p>`;
+                    for (const invitation of data.invitations) {
+                        const avatarSrc = invitation.profile_picture_url ? `${BASE_PROJECT_URL}${invitation.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                        invitationsListHtml += `
+                           <div class="invitation-item p-3 border rounded my-2 d-flex align-items-center" data-invitation-id="${invitation.id}" data-inviter-first-name="${invitation.prenom || ''}" data-inviter-last-name="${invitation.nom || ''}">
+                                <button class="btn btn-link p-0 view-profile-button" data-user-id="${invitation.user_id}">
+                                    <img src="${avatarSrc}" alt="Photo de ${invitation.prenom || 'Inconnu'} ${invitation.nom || ''}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                </button>
+                                <div class="flex-grow-1">
+                                    <p class="mb-1"><strong>${invitation.prenom || 'Inconnu'} ${invitation.nom || ''}</strong> vous a envoyé une invitation</p>
+                                </div>
+                                <div class="invitation-actions ms-auto">
+                                    <button class="btn btn-success btn-sm me-2 accept-button" data-invitation-id="${invitation.id}">Confirmer</button>
+                                    <button class="btn btn-danger btn-sm decline-button" data-invitation-id="${invitation.id}">Supprimer</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                console.error('Erreur lors de la récupération des invitations :', data.message);
+                invitationsListHtml += `<p class="text-center text-danger">Erreur : ${data.message}</p>`;
+            }
+            postsContainer.innerHTML = invitationsListHtml;
+
+        } catch (error) {
+            console.error('Erreur réseau ou d\'analyse lors de la récupération des invitations :', error);
+            postsContainer.innerHTML = `<p class="text-center text-danger">Une erreur inattendue est survenue. Veuillez réessayer.</p>`;
+        }
+    };
+
+    const displayUserProfile = async (targetUserId) => {
+        // Cacher les éléments spécifiques au fil d'actualité
+        updateMainAppContentVisibility(false);
+        try {
+            const response = await fetch(`${BASE_API_URL}get_user_profile.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: targetUserId })
+            });
+
+            if (!response.ok) { throw new Error(`Erreur HTTP ! statut : ${response.status}`); }
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const profileData = data.user;
+                let profileHtml = `
+                    <div class="profile-modal">
+                        <div class="profile-header">
+                            <img src="${profileData.profile_picture_url ? `${BASE_PROJECT_URL}${profileData.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`}" alt="Photo de ${profileData.first_name || 'Inconnu'} ${profileData.last_name || ''}" class="profile-avatar">
+                            <h2>${profileData.prenom || 'Inconnu'} ${profileData.nom || ''}</h2>
+                            <p class="friends-count">Chargement du nombre d'amis...</p>
+                            <div class="profile-actions">
+                                <button class="btn btn-primary" id="message-button" data-target-user-id="${profileData.user_id}">Message</button>
+                                <button class="btn btn-secondary" id="add-friend-button" data-target-user-id="${profileData.user_id}">Ajouter comme ami</button>
+                                <button class="btn btn-info" id="edit-profile-button" style="display: none;">Modifier le profil</button>
+                            </div>
+                            <div id="edit-profile-form-container" style="display: none;">
+                                <h3>Modifier votre profil</h3>
+                                <input type="text" id="edit-first-name" placeholder="Prénom" value="${profileData.first_name || ''}">
+                                <input type="text" id="edit-last-name" placeholder="Nom" value="${profileData.last_name || ''}">
+                                <div class="form-group">
+                                    <label for="edit-password">Nouveau mot de passe :</label>
+                                    <input type="password" id="edit-password" name="password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-confirm-password">Confirmer le mot de passe :</label>
+                                    <input type="password" id="edit-confirm-password" name="confirm_password">
+                                </div>
+                                <input type="file" id="edit-profile-picture" accept="image/*">
+                                <button id="save-profile-button">Enregistrer les modifications</button>
+                                <button id="cancel-edit-button">Annuler</button>
+                            </div>
+                        </div>
+                        <h3>Posts de ${profileData.prenom || 'Cet utilisateur'}</h3>
+                        <div class="user-posts-container">
+                            <p>Chargement des posts...</p>
+                        </div>
+                    </div>
+                `;
+                postsContainer.innerHTML = profileHtml;
+
+                try {
+                    const friendsCountResponse = await fetch(`${BASE_API_URL}get_user_friends_count.php`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: targetUserId })
+                    });
+                    const friendsCountData = await friendsCountResponse.json();
+                    if (friendsCountData.status === 'success') { document.querySelector('.friends-count').textContent = `${friendsCountData.count} ami(s)`; }
+                    else { document.querySelector('.friends-count').textContent = "Impossible de charger le nombre d'amis."; }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération du nombre d'amis :", error);
+                    document.querySelector('.friends-count').textContent = "Erreur de chargement des amis.";
+                }
+
+                // Charger les publications de l'utilisateur avec les éléments interactifs
+                try {
+                    const userPostsResponse = await fetch(`${BASE_API_URL}get_user_posts.php`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: targetUserId })
+                    });
+                    const userPostsData = await userPostsResponse.json();
+                    const userPostsContainer = document.querySelector('.user-posts-container');
+                    if (userPostsData.status === 'success' && userPostsData.posts.length > 0) {
+                        let postsHtml = '';
+                        for (const post of userPostsData.posts) {
+                            const postImageHtml = post.image_url ? `<img class="post-image" src="../${post.image_url}" alt="Image du post">` : '';
+                            let likeClass = '';
+                            let reactionLabel = "J'aime";
+                            
+                            // Récupérer la réaction de l'utilisateur pour la publication actuelle
+                            if (currentUserId) {
+                                try {
+                                    const res = await fetch(`${BASE_API_URL}perspostsre.php`, {
+                                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ user_id: currentUserId, post_id: post.post_id })
+                                    });
+                                    const data = await res.json();
+                                    if (data.success && data.reaction) {
+                                        const type = data.reaction;
+                                        switch (type) {
+                                            case 'like': likeClass = 'like-blue'; reactionLabel = "J'aime"; break;
+                                            case 'love': likeClass = 'like-love'; reactionLabel = "J'adore"; break;
+                                            case 'haha': likeClass = 'like-yellow'; reactionLabel = "Haha"; break;
+                                            case 'triste': likeClass = 'like-yellow'; reactionLabel = "Triste"; break;
+                                            case 'wouah': likeClass = 'like-yellow'; reactionLabel = "Waouh"; break;
+                                            case 'colere': likeClass = 'like-angry'; reactionLabel = "En colère"; break;
+                                            default: likeClass = ''; reactionLabel = "J'aime"; break;
+                                        }
+                                    }
+                                } catch (err) { console.error("Erreur de récupération de la réaction personnelle:", err); }
+                            }
+
+                            postsHtml += `
+                                <div class="post" data-post-id="${post.post_id}" data-post-owner-id="${post.user_id}">
+                                    <div class="post-header">
+                                        <img class="avatar" src="${profileData.profile_picture_url ? `${BASE_PROJECT_URL}${profileData.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`}" alt="Avatar de ${profileData.prenom || 'Inconnu'} ${profileData.nom || ''}">
+                                        <div class="user-info">
+                                            <strong>${profileData.prenom || 'Inconnu'} ${profileData.nom || ''}</strong>
+                                            <span class="post-time">${new Date(post.created_at).toLocaleString('fr-FR')}</span>
+                                        </div>
+                                    </div>
+                                    <p class="post-description">${post.description}</p>
+                                    ${postImageHtml}
+                                    <div class="post-stats">
+                                        <span class="reaction-count"><i class="bi bi-hand-thumbs-up"></i> ${post.reaction_count || 0}</span>
+                                        <span class="comment-count"><i class="bi bi-chat-dots"></i> ${post.comment_count || 0} commentaires</span>
+                                    </div>
+                                    <div class="post-actions">
+                                        <button class="comments-button" data-post-id="${post.post_id}"><i class="bi bi-chat"></i> Afficher les commentaires</button>
+                                        <div class="reactions reaction-bar" style="display: none;">
+                                            <span class="emoji" data-reaction-type="like">👍 J'aime</span>
+                                            <span class="emoji" data-reaction-type="love">❤ J'adore</span>
+                                            <span class="emoji" data-reaction-type="haha">😂 Haha</span>
+                                            <span class="emoji" data-reaction-type="wouah">😮 Waouh</span>
+                                            <span class="emoji" data-reaction-type="triste">😢 Triste</span>
+                                            <span class="emoji" data-reaction-type="colere">😡 En colère</span>
+                                        </div>
+                                        <button class="like-button ${likeClass}" data-post-id="${post.post_id}" data-current-reaction="${likeClass ? likeClass.replace('like-', '') : ''}">${reactionLabel}</button>
+                                        <!-- Bouton Signaler, visible aussi sur le profil -->
+                                        <button class="report-post-btn" data-post-id="${post.post_id}">
+                                            <i class="bi bi-flag"></i> Signaler
+                                        </button>
+                                    </div>
+                                    <div class="comment-section" id="comments-${post.post_id}" style="display: none">
+                                        <input type="text" class="comment-input" placeholder="Ajouter un commentaire...">
+                                        <button class="submit-comment-button" data-post-id="${post.post_id}">Commenter</button>
+                                        <div class="comments-list"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        userPostsContainer.innerHTML = postsHtml;
+                    } else { userPostsContainer.innerHTML = `<p>Aucun post trouvé pour le moment.</p>`; }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des posts de l'utilisateur :", error);
+                    document.querySelector('.user-posts-container').innerHTML = `<p>Erreur lors du chargement des posts.</p>`;
+                }
+
+                const addFriendButton = document.getElementById('add-friend-button');
+                const messageButton = document.getElementById('message-button');
+                const editProfileButton = document.getElementById('edit-profile-button');
+                const editProfileFormContainer = document.getElementById('edit-profile-form-container');
+                const saveProfileButton = document.getElementById('save-profile-button');
+                const cancelEditButton = document.getElementById('cancel-edit-button');
+
+                if (String(targetUserId) === String(currentUserId)) {
+                    addFriendButton.style.display = 'none';
+                    messageButton.style.display = 'none';
+                    editProfileButton.style.display = 'inline-block';
+
+                    editProfileButton.addEventListener('click', () => {
+                        editProfileFormContainer.style.display = 'block';
+                        document.getElementById('edit-first-name').value = profileData.first_name || '';
+                        document.getElementById('edit-last-name').value = profileData.last_name || '';
+                        document.getElementById('edit-password').value = '';
+                        document.getElementById('edit-confirm-password').value = '';
+                    });
+
+                    cancelEditButton.addEventListener('click', () => { editProfileFormContainer.style.display = 'none'; });
+
+                    saveProfileButton.addEventListener('click', async () => {
+                        const newFirstName = document.getElementById('edit-first-name').value.trim();
+                        const newLastName = document.getElementById('edit-last-name').value.trim();
+                        const newPassword = document.getElementById('edit-password').value;
+                        const confirmPassword = document.getElementById('edit-confirm-password').value;
+                        const newProfilePicture = document.getElementById('edit-profile-picture').files[0];
+
+                        if (!newFirstName || !newLastName) { alert('Le prénom et le nom ne peuvent pas être vides.'); return; }
+                        if (newPassword && newPassword !== confirmPassword) { alert('Les mots de passe ne correspondent pas.'); return; }
+
+                        const formData = new FormData();
+                        formData.append('user_id', currentUserId);
+                        formData.append('first_name', newFirstName);
+                        formData.append('last_name', newLastName);
+                        if (newPassword) { formData.append('password', newPassword); }
+                        if (newProfilePicture) { formData.append('profile_picture', newProfilePicture); }
+
+                        try {
+                            const response = await fetch(`${BASE_API_URL}update_profile.php`, { method: 'POST', body: formData });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                alert('Profil mis à jour avec succès !');
+                                // Mettre à jour les infos de session si le profil de l'utilisateur actuel est modifié
+                                sessionStorage.setItem('userName', newFirstName + ' ' + newLastName);
+                                if (data.new_profile_picture_url) {
+                                    sessionStorage.setItem('userProfilePic', data.new_profile_picture_url);
+                                    currentUserProfilePic = data.new_profile_picture_url;
+                                }
+                                currentUserName = newFirstName + ' ' + newLastName;
+
+                                editProfileFormContainer.style.display = 'none'; displayUserProfile(currentUserId);
+                            } else { alert('Erreur lors de la mise à jour du profil : ' + (data.message || 'Erreur inconnue')); }
+                        } catch (error) {
+                            console.error('Erreur réseau lors de la mise à jour du profil:', error);
+                            alert('Une erreur est survenue lors de la mise à jour de votre profil. Veuillez réessayer plus tard.');
+                        }
+                    });
+                } else {
+                    try {
+                        const friendshipStatusResponse = await fetch(`${BASE_API_URL}check_friendship_status.php`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user1_id: currentUserId, user2_id: targetUserId })
+                        });
+                        const friendshipStatusData = await friendshipStatusResponse.json();
+
+                        if (friendshipStatusData.status === 'success') {
+                            switch (friendshipStatusData.friendship) {
+                                case 'friends':
+                                    addFriendButton.textContent = 'Ami(e)'; addFriendButton.disabled = true;
+                                    addFriendButton.classList.remove('btn-secondary'); addFriendButton.classList.add('btn-info');
+                                    break;
+                                case 'pending_sent':
+                                    addFriendButton.textContent = 'Demande envoyée'; addFriendButton.disabled = true;
+                                    addFriendButton.classList.remove('btn-secondary'); addFriendButton.classList.add('btn-warning');
+                                    break;
+                                case 'pending_received':
+                                    addFriendButton.textContent = 'Accepter la demande';
+                                    addFriendButton.classList.remove('btn-secondary'); addFriendButton.classList.add('btn-success');
+                                    addFriendButton.onclick = async () => {
+                                        const invitationId = friendshipStatusData.invitation_id;
+                                        if (!invitationId) { alert(`Impossible d'accepter la demande : ID d'invitation manquant.`); return; }
+                                        try {
+                                            const response = await fetch(`${BASE_API_URL}gestion.invitations.php`, {
+                                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ invitation_id: invitationId, status: 'accepted' })
+                                            });
+                                            const data = await response.json();
+                                            if (data.status === 'success') {
+                                                alert('Demande acceptée ! Vous êtes maintenant amis.');
+                                                addFriendButton.textContent = 'Ami(e)'; addFriendButton.disabled = true;
+                                                addFriendButton.classList.remove('btn-success'); addFriendButton.classList.add('btn-info');
+                                                await createNotification(targetUserId, currentUserId, 'friend_accepted', `${currentUserName} a accepté votre demande d'ami.`);
+                                            } else { alert("Erreur lors de l'acceptation de la demande : " + (data.message || 'inconnue')); }
+                                        } catch (err) { console.error("Erreur acceptation :", err); alert("Erreur réseau lors de l'acceptation de la demande."); }
+                                    };
+                                    break;
+                                case 'not_friends':
+                                default:
+                                    addFriendButton.textContent = 'Ajouter comme ami'; addFriendButton.disabled = false;
+                                    addFriendButton.classList.remove('btn-info', 'btn-warning', 'btn-success'); addFriendButton.classList.add('btn-secondary');
+                                    addFriendButton.onclick = async () => {
+                                        try {
+                                            const sendRequestResponse = await fetch(`${BASE_API_URL}send_friend_request.php`, {
+                                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ inviter_id: currentUserId, invitee_id: targetUserId })
+                                            });
+                                            const sendRequestData = await sendRequestResponse.json();
+                                            if (sendRequestData.status === 'success') {
+                                                alert('Demande d\'ami envoyée !');
+                                                addFriendButton.textContent = 'Demande envoyée'; addFriendButton.disabled = true;
+                                                addFriendButton.classList.remove('btn-secondary'); addFriendButton.classList.add('btn-warning');
+                                                await createNotification(targetUserId, currentUserId, 'friend_request', `${currentUserName} vous a envoyé une demande d'ami.`);
+                                            } else { alert('Erreur lors de l\'envoi de la demande : ' + sendRequestData.message); }
+                                        } catch (error) { console.error("Erreur d'envoi de demande d'ami :", error); alert("Une erreur est survenue lors de l'envoi de la demande."); }
+                                    };
+                                    break;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Erreur lors de la vérification du statut d'amitié :", error);
+                        addFriendButton.textContent = 'Erreur statut ami'; addFriendButton.disabled = true;
+                    }
+                }
+
+                messageButton.addEventListener('click', () => {
+                    openChatWithUser(targetUserId, profileData.first_name || 'Inconnu', profileData.last_name || '', profileData.profile_picture_url);
+                });
+
+            } else {
+                console.error('Erreur lors de la récupération du profil utilisateur :', data.message);
+                alert('Une erreur est survenue lors de la récupération du profil utilisateur : ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération du profil utilisateur :', error);
+            alert('Une erreur est survenue lors de la récupération du profil utilisateur. Veuillez réessayer plus tard.');
+        }
+    };
+
+    const refreshSidebarConversations = async (currentUserIdParam, conversationsListElement) => {
+        try {
+            const response = await fetch(`${BASE_API_URL}get_conversations.php`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: currentUserIdParam })
+            });
+            const data = await response.json();
+
+            if (data.status === 'success' && data.conversations) {
+                let convHtml = '';
+                if (data.conversations.length === 0) { convHtml = '<p>Aucune conversation pour le moment.</p>'; }
+                else {
+                    data.conversations.forEach(conv => {
+                        const otherUser = (String(conv.user1_id) === String(currentUserIdParam)) ? {id: conv.user2_id, first_name: conv.user2_first_name, last_name: conv.user2_last_name, profile_picture_url: conv.user2_profile_picture_url} : {id: conv.user1_id, first_name: conv.user1_first_name, last_name: conv.user1_last_name, profile_picture_url: conv.user1_profile_picture_url};
+                        const lastMessageText = conv.last_message_text ? conv.last_message_text.substring(0, 30) + (conv.last_message_text.length > 30 ? '...' : '') : 'Nouveau chat';
+                        const avatarSrc = otherUser.profile_picture_url ? `${BASE_PROJECT_URL}${otherUser.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                        convHtml += `
+                            <div class="conversation-item" data-target-user-id="${otherUser.id}" data-target-first-name="${otherUser.first_name || 'Inconnu'}" data-target-last-name="${otherUser.last_name || ''}" data-target-profile-pic="${otherUser.profile_picture_url || ''}">
+                                <img src="${avatarSrc}" alt="Avatar">
+                                <div class="conversation-info">
+                                    <h4>${otherUser.first_name || 'Inconnu'} ${otherUser.last_name || ''}</h4>
+                                    <p>${lastMessageText}</p>
+                                </div>
+                                <span class="last-message-time">${conv.last_message_time ? new Date(conv.last_message_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                            </div>
+                        `;
+                    });
+                }
+                conversationsListElement.innerHTML = convHtml;
+
+                conversationsListElement.querySelectorAll('.conversation-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const targetId = item.dataset.targetUserId;
+                        const targetFName = item.dataset.targetFirstName;
+                        const targetLName = item.dataset.targetLastName;
+                        const targetPic = item.dataset.targetProfilePic;
+                        openChatWithUser(targetId, targetFName, targetLName, targetPic, true);
+                        conversationsListElement.querySelectorAll('.conversation-item').forEach(li => li.classList.remove('active'));
+                        item.classList.add('active');
+                    });
+                });
+
+            } else { conversationsListElement.innerHTML = '<p>Erreur lors du chargement des conversations.</p>'; }
+        } catch (error) {
+            console.error('Erreur réseau lors du chargement des conversations:', error);
+            conversationsListElement.innerHTML = '<p>Erreur de chargement des conversations.</p>';
+        }
+    };
+
+    const displayMessagesInterface = async () => {
+        // Cacher les éléments spécifiques au fil d'actualité
+         updateMainAppContentVisibility(false);
+        if (!currentUserId) { postsContainer.innerHTML = '<p>Veuillez vous connecter pour accéder à la messagerie.</p>'; return; }
+
+        postsContainer.innerHTML = `
+            <div class="messages-page">
+                <div class="sidebar">
+                    <h3>Conversations</h3>
+                    <input type="text" id="messages-search-user-input" placeholder="Rechercher un contact...">
+                    <div id="conversations-list">
+                        <p>Chargement des conversations...</p>
+                    </div>
+                </div>
+                <div class="chat-area" id="main-chat-area">
+                    <p class="no-conversation-selected">Sélectionnez une conversation ou cherchez un contact pour commencer.</p>
+                </div>
+            </div>
+        `;
+
+        const conversationsList = document.getElementById('conversations-list');
+        const messagesSearchUserInput = document.getElementById('messages-search-user-input');
+
+        await refreshSidebarConversations(currentUserId, conversationsList);
+
+        messagesSearchUserInput.addEventListener('input', async () => {
+            const query = messagesSearchUserInput.value.trim();
+            if (query.length < 2) { await refreshSidebarConversations(currentUserId, conversationsList); return; }
+
+            try {
+                const searchResponse = await fetch(`${BASE_API_URL}search_users_for_chat.php?q=${encodeURIComponent(query)}&user_id=${currentUserId}`);
+                const searchData = await searchResponse.json();
+
+                if (searchData.status === 'success' && searchData.users) {
+                    let resultsHtml = '';
+                    if (searchData.users.length === 0) { resultsHtml = '<p>Aucun utilisateur trouvé.</p>'; }
+                    else {
+                        searchData.users.forEach(user => {
+                            const avatarSrc = user.profile_picture_url ? `${BASE_PROJECT_URL}${user.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                            resultsHtml += `
+                                <div class="conversation-item search-result-chat-item" data-target-user-id="${user.user_id}" data-target-first-name="${user.first_name || 'Inconnu'}" data-target-last-name="${user.last_name || ''}" data-target-profile-pic="${user.profile_picture_url || ''}">
+                                    <img src="${avatarSrc}" alt="Avatar">
+                                    <div class="conversation-info">
+                                        <h4>${user.first_name || 'Inconnu'} ${user.last_name || ''}</h4>
+                                        <p>Nouveau chat</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    conversationsList.innerHTML = resultsHtml;
+
+                    conversationsList.querySelectorAll('.search-result-chat-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const targetId = item.dataset.targetUserId;
+                            const targetFName = item.dataset.targetFirstName;
+                            const targetLName = item.dataset.targetLastName;
+                            const targetPic = item.dataset.targetProfilePic;
+                            openChatWithUser(targetId, targetFName, targetLName, targetPic, true);
+                            conversationsList.querySelectorAll('.conversation-item').forEach(li => li.classList.remove('active'));
+                            item.classList.add('active');
+                        });
+                    });
+
+                } else { conversationsList.innerHTML = `<p>Erreur lors de la recherche: ${searchData.message}</p>`; }
+            } catch (error) {
+                console.error('Erreur réseau lors de la recherche de contact pour le chat:', error);
+                conversationsList.innerHTML = '<p>Erreur de recherche.</p>';
+            }
+        });
+    };
+
+    const openChatWithUser = async (targetUserId, targetFirstName, targetLastName, targetProfilePic, fromMessagesPage = false) => {
+        const chatAreaContainer = fromMessagesPage ? document.getElementById('main-chat-area') : postsContainer;
+        if (!chatAreaContainer) { console.error('Conteneur de chat non trouvé.'); return; }
+        
+        const avatarSrc = targetProfilePic ? `${BASE_PROJECT_URL}${targetProfilePic}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+
+        chatAreaContainer.innerHTML = `
+            <div class="chat-modal">
+                <div class="chat-header">
+                    ${fromMessagesPage ? `<button id="back-to-messages-button"><i class="bi bi-arrow-left"></i> Retour</button>` : `<button id="back-to-profile-button"><i class="bi bi-arrow-left"></i> Retour</button>`}
+                    <img src="${avatarSrc}" alt="Photo de ${targetFirstName} ${targetLastName}" class="chat-avatar">
+                    <h3>Conversation avec ${targetFirstName} ${targetLastName}</h3>
+                </div>
+                <div class="chat-messages" id="chat-messages-container">
+                    <p>Chargement des messages...</p>
+                </div>
+                <div class="chat-input-area">
+                    <textarea id="chat-message-input" placeholder="Écrivez votre message..."></textarea>
+                    <button id="send-chat-message-button">Envoyer</button>
+                    <label for="image-upload-chat" class="upload-image-label">
+                        <i class="bi bi-image"></i>
+                        <input type="file" id="image-upload-chat" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+            </div>
+        `;
+
+        const backButton = document.getElementById(fromMessagesPage ? 'back-to-messages-button' : 'back-to-profile-button');
+        const chatMessageInput = document.getElementById('chat-message-input');
+        const sendChatMessageButton = document.getElementById('send-chat-message-button');
+        const chatMessagesContainer = document.getElementById('chat-messages-container');
+        const imageUploadChat = document.getElementById('image-upload-chat');
+        let imageToSend = null;
+
+        imageUploadChat.addEventListener('change', (e) => {
+            imageToSend = e.target.files[0];
+            if (imageToSend) { alert(`Image sélectionnée: ${imageToSend.name}`); }
+        });
+
+        backButton.addEventListener('click', () => {
+            if (window.messageRefreshInterval) { clearInterval(window.messageRefreshInterval); window.messageRefreshInterval = null; }
+            if (fromMessagesPage) { displayMessagesInterface(); } else { displayUserProfile(targetUserId); }
+        });
+
+        const loadMessages = async () => {
+            const isScrolledToBottom = chatMessagesContainer.scrollHeight - chatMessagesContainer.scrollTop <= chatMessagesContainer.clientHeight + 1; // +1 for tolerance
+            try {
+                const response = await fetch(`${BASE_API_URL}get_messages.php`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id1: currentUserId, user_id2: targetUserId })
+                });
+                const data = await response.json();
+
+                if (data.status === 'success' && data.messages) {
+                    let messagesHtml = '';
+                    data.messages.forEach(msg => {
+                        const messageClass = (String(msg.sender_id) === String(currentUserId)) ? 'sent' : 'received';
+                        messagesHtml += `
+                            <div class="message-item ${messageClass}">
+                                <div class="message-content">
+                                    <p>${msg.message_text ? msg.message_text : ''}</p>
+                                    ${msg.image_url ? `<img src="${BASE_PROJECT_URL}${msg.image_url}" alt="Image de message" class="message-image">` : ''}
+                                    <span class="message-time">${new Date(msg.created_at).toLocaleString('fr-FR')}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    chatMessagesContainer.innerHTML = messagesHtml;
+                    if (isScrolledToBottom) { // Only scroll to bottom if user was already at the bottom
+                        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                    }
+                } else { chatMessagesContainer.innerHTML = '<p>Aucun message pour le moment.</p>'; }
+            } catch (error) {
+                console.error('Erreur lors du chargement des messages:', error);
+                chatMessagesContainer.innerHTML = '<p>Erreur de chargement des messages.</p>';
+            }
+        };
+
+        sendChatMessageButton.addEventListener('click', async () => {
+            const messageText = chatMessageInput.value.trim();
+            if (!messageText && !imageToSend) { alert('Veuillez écrire un message ou sélectionner une image.'); return; }
+
+            const formData = new FormData();
+            formData.append('sender_id', currentUserId);
+            formData.append('receiver_id', targetUserId);
+            formData.append('message_text', messageText);
+            if (imageToSend) { formData.append('message_image', imageToSend); }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}send_message.php`, { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    chatMessageInput.value = ''; imageToSend = null; imageUploadChat.value = '';
+                    await loadMessages();
+                    if (fromMessagesPage) {
+                        const convListElement = document.getElementById('conversations-list');
+                        if (convListElement) { await refreshSidebarConversations(currentUserId, convListElement); }
+                        else { console.warn("conversationsList n'existe pas. La liste des conversations ne sera pas mise à jour automatiquement."); }
+                    }
+                    // Créer une notification pour le destinataire
+                    await createNotification(targetUserId, currentUserId, 'new_message', `Vous avez un nouveau message de ${currentUserName}.`);
+
+                } else { alert('Erreur lors de l\'envoi du message : ' + (data.message || 'Erreur inconnue')); }
+            } catch (error) {
+                console.error('Erreur réseau lors de l\'envoi du message:', error);
+                alert('Une erreur est survenue lors de l\'envoi de votre message.');
+            }
+        });
+
+        await loadMessages();
+        if (window.messageRefreshInterval) { clearInterval(window.messageRefreshInterval); }
+        window.messageRefreshInterval = setInterval(loadMessages, 3000);
+    };
+
+    // Handle image input for post creation
+    let selectedPostImageFile = null;
+
+    postImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            selectedPostImageFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                postImagePreview.src = e.target.result;
+                postImagePreviewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            selectedPostImageFile = null;
+            postImagePreview.src = '';
+            postImagePreviewContainer.style.display = 'none';
+        }
+    });
+
+    clearImageButton.addEventListener('click', () => {
+        selectedPostImageFile = null;
+        postImageInput.value = ''; // Clear the file input
+        postImagePreview.src = '';
+        postImagePreviewContainer.style.display = 'none';
+    });
+
+
+    submitPostButton.addEventListener('click', async () => {
+        const description = postDescriptionInput.value.trim();
+        const imageFile = selectedPostImageFile; // Use the stored file
+
+        if (!description && !imageFile) { alert('Veuillez écrire une description ou sélectionner une image pour votre publication.'); return; }
+        if (!currentUserId) { alert('Vous devez être connecté pour publier.'); return; }
+
+        const formData = new FormData();
+        formData.append('user_id', currentUserId);
+        formData.append('description', description);
+        if (imageFile) { formData.append('image', imageFile); }
+
+        try {
+            const response = await fetch(`${BASE_API_URL}create_post.php`, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Publication ajoutée avec succès !');
+                postDescriptionInput.value = '';
+                // Clear image preview and file input
+                selectedPostImageFile = null;
+                postImageInput.value = '';
+                postImagePreview.src = '';
+                postImagePreviewContainer.style.display = 'none';
+
+                loadNewsFeedPosts();
+            } else { alert('Erreur lors de l\'ajout de la publication : ' + (data.message || 'Erreur inconnue')); }
+        } catch (error) {
+            console.error('Erreur réseau lors de l\'ajout de la publication:', error);
+            alert('Une erreur est survenue lors de l\'envoi de votre publication. Veuillez réessayer plus tard.');
+        }
+    });
+
+    postsContainer.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('like-button')) {
+            const likeButton = e.target; const post = likeButton.closest('.post'); const reactionBar = post.querySelector('.reactions');
+            if (reactionBar && reactionBar.style.display === 'flex') { reactionBar.style.display = 'none'; }
+            pressTimer = setTimeout(() => { if (reactionBar) { reactionBar.style.display = 'flex'; } }, LONG_PRESS_THRESHOLD);
+        } else if (e.target.classList.contains('comment-like-button')) {
+            const likeButton = e.target; const commentItem = likeButton.closest('.comment-item'); const reactionBar = commentItem.querySelector('.reactions');
+            if (reactionBar && reactionBar.style.display === 'flex') { reactionBar.style.display = 'none'; }
+            pressTimer = setTimeout(() => { if (reactionBar) { reactionBar.style.display = 'flex'; } }, LONG_PRESS_THRESHOLD);
+        }
+    });
+
+    postsContainer.addEventListener('mouseup', (e) => {
+        clearTimeout(pressTimer);
+        if (e.target.classList.contains('like-button')) {
+            const likeButton = e.target; const postId = likeButton.dataset.postId; const currentReactionType = likeButton.dataset.currentReaction;
+            const reactionBar = likeButton.closest('.post').querySelector('.reactions');
+            if (reactionBar && reactionBar.style.display === 'flex' && pressTimer !== null) { return; }
+            handleSingleLikeClick(postId, likeButton, currentReactionType);
+        } else if (e.target.classList.contains('comment-like-button')) {
+            const likeButton = e.target; const commentId = likeButton.dataset.commentId; const currentReactionType = likeButton.dataset.currentReaction;
+            const reactionBar = likeButton.closest('.comment-item').querySelector('.reactions');
+            if (reactionBar && reactionBar.style.display === 'flex' && pressTimer !== null) { return; }
+            handleSingleCommentLikeClick(commentId, likeButton, currentReactionType);
+        }
+    });
+
+    postsContainer.addEventListener('mouseleave', (e) => { clearTimeout(pressTimer); });
+
+    postsContainer.addEventListener('click', async (e) => {
+       if (e.target.classList.contains('accept-button')) {
+            const acceptButton = e.target;
+            const invitationItem = acceptButton.closest('.invitation-item'); // Obtenir l'\u00e9l\u00e9ment parent invitation-item
+            
+            
+            if (!invitationItem) {
+                console.error("Parent .invitation-item non trouvé pour le bouton d'acceptation.");
+                alert("Erreur : élément d'invitation introuvable.");
+                return;
+            }
+
+            const invitationId = invitationItem.dataset.invitationId; // Obtenir l'ID de l'invitation du parent
+            const inviterUserId = acceptButton.dataset.inviterId; // Obtenir l'ID de l'inviteur directement du bouton
+            
+            try {
+                const response = await fetch(`${BASE_API_URL}gestion.invitations.php`, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ invitation_id: invitationId, status: 'accepted' })
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+    
+                    const inviterFirstName = invitationItem.dataset.inviterFirstName;
+                    const inviterLastName = invitationItem.dataset.inviterLastName;
+                    const inviterName = `${inviterFirstName || 'cet'} ${inviterLastName || 'utilisateur'}`.trim();
+
+                  
+                    invitationItem.innerHTML = `<p style="text-align: center; color: green; padding: 10px;">Vous \u00eates maintenant amis avec ${inviterName} !</p>`;
+                    
+                   
+                    setTimeout(() => {
+                        invitationItem.remove(); 
+                        loadInvitations(); 
+                    }, 2000);
+
+                   
+                    if (inviterUserId) {
+                        await createNotification(inviterUserId, currentUserId, 'friend_accepted', `${currentUserName} a accept\u00e9 votre demande d'ami.`);
+                    }
+                } else { 
+                    alert("Erreur lors de l'acceptation de l'invitation : " + (data.message || 'inconnue')); 
+                }
+            } catch (err) { 
+                console.error("Erreur acceptation :", err); 
+                alert("Erreur réseau lors de l'acceptation de l'invitation."); 
+            }
+        }  else if (e.target.classList.contains('decline-button')) {
+            const declineButton = e.target;
+            const invitationItem = declineButton.closest('.invitation-item');
+
+            if (!invitationItem) {
+                console.error("Parent .invitation-item non trouvé pour le bouton de suppression.");
+                alert("Erreur: élément d'invitation introuvable.");
+                return;
+            }
+
+            const invitationId = invitationItem.dataset.invitationId;
+
+            if (!invitationId) {
+                console.error("ID d'invitation manquant sur l'élément.");
+                alert("Erreur: ID d'invitation introuvable.");
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${BASE_API_URL}gestion.invitations.php`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ invitation_id: invitationId, status: 'rejected' })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    invitationItem.innerHTML = `<p style="text-align: center; color: red; padding: 10px;">Invitation supprim\u00e9e.</p>`;
+                    setTimeout(() => {
+                        invitationItem.remove();
+                        loadInvitations();
+                    }, 2000);
+                }
+                else { alert("Erreur lors du refus de l'invitation: " + (data.message || 'inconnue')); }
+            } catch (err) { console.error("Erreur refus :", err); alert("Erreur réseau lors du refus de l'invitation."); }
+        }
+else if (e.target.closest('.view-profile-button')) {
+            const targetUserId = e.target.closest('.view-profile-button').dataset.userId;
+            if (targetUserId) { displayUserProfile(targetUserId); } else { console.warn('ID utilisateur pour le profil introuvable.'); }
+        } else if (e.target.classList.contains('avatar') && e.target.dataset.userId) {
+            const targetUserId = e.target.dataset.userId;
+            if (targetUserId) { displayUserProfile(targetUserId); } else { console.warn('ID utilisateur pour l\'avatar de publication introuvable.'); }
+        } else if (e.target.classList.contains('submit-comment-button')) {
+            const submitButton = e.target; const postId = submitButton.dataset.postId;
+            const commentInput = submitButton.previousElementSibling; const commentText = commentInput.value.trim();
+            if (!commentText) { alert('Veuillez entrer un commentaire.'); return; }
+            if (!currentUserId) { alert('Veuillez vous connecter pour commenter.'); return; }
+            try {
+                const response = await fetch(`${BASE_API_URL}post_comment.php`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ post_id: postId, comment_text: commentText, user_id: currentUserId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    commentInput.value = '';
+                    const commentsListElement = document.querySelector(`#comments-${postId} .comments-list`);
+                    if (commentsListElement) { await loadCommentsForPost(postId, commentsListElement); }
+                    // Créer une notification pour le propriétaire du post
+                    const postOwnerId = submitButton.closest('.post').dataset.postOwnerId;
+                    if (postOwnerId && String(postOwnerId) !== String(currentUserId)) {
+                        await createNotification(postOwnerId, currentUserId, 'post_comment', `${currentUserName} a commenté votre publication.`);
+                    }
+                } else { alert('Erreur lors de l\'ajout du commentaire. Veuillez réessayer.'); }
+            } catch (err) { console.error('Erreur lors de l\'ajout du commentaire:', err); alert('Une erreur est survenue. Veuillez réessayer plus tard.'); }
+        } else if (e.target.classList.contains('emoji') && !e.target.classList.contains('comment-emoji')) {
+            const emojiSpan = e.target; const post = emojiSpan.closest('.post');
+            const likeButton = post.querySelector('.like-button'); const postId = likeButton.dataset.postId;
+            const reactionType = emojiSpan.dataset.reactionType;
+            await handleReaction(postId, likeButton, reactionType);
+            const reactionBar = post.querySelector('.reactions');
+            if(reactionBar) reactionBar.style.display = 'none';
+        } else if (e.target.classList.contains('comment-emoji')) {
+            const emojiSpan = e.target; const commentItem = emojiSpan.closest('.comment-item');
+            const likeButton = commentItem.querySelector('.comment-like-button'); const commentId = likeButton.dataset.commentId;
+            const reactionType = emojiSpan.dataset.reactionType;
+            await handleCommentReaction(commentId, likeButton, reactionType);
+            const reactionBar = commentItem.querySelector('.reactions');
+            if(reactionBar) reactionBar.style.display = 'none';
+        } else if (e.target.classList.contains('comments-button')) {
+          const postId = e.target.dataset.postId;
+          const commentSection = document.getElementById(`comments-${postId}`);
+          if (commentSection) {
+            commentSection.style.display = commentSection.style.display === 'none' ? 'block' : 'none';
+            if (commentSection.style.display === 'block') { await loadCommentsForPost(postId, commentSection.querySelector('.comments-list')); }
+          }
+        } else if (e.target.classList.contains('report-post-btn')) {
+            const postId = e.target.dataset.postId;
+            if (!currentUserId) { alert("Veuillez vous connecter pour signaler une publication."); return; }
+            const reason = prompt("Veuillez indiquer la raison du signalement (facultatif) :");
+            await reportPost(postId, reason);
+        }
+        else if (e.target.classList.contains('reply-button')) {
+            const replyButton = e.target;
+            const commentId = replyButton.dataset.commentId;
+            
+            const parentContainer = replyButton.closest('.comment-item') || replyButton.closest('.reply-item');
+            const repliesSection = parentContainer.querySelector(`#replies-${commentId}`);
+
+            if (!repliesSection) {
+                console.error(`Section de réponses pour le commentaire ${commentId} introuvable.`);
+                return;
+            }
+
+            const replyInputArea = repliesSection.querySelector('.reply-input-area');
+            const repliesList = repliesSection.querySelector('.replies-list');
+            const showMoreButton = repliesSection.querySelector('.show-more-replies-button');
+
+            if (repliesSection.style.display === 'none' || repliesSection.style.display === '') {
+                repliesSection.style.display = 'block';
+                replyInputArea.style.display = 'flex';
+                repliesList.innerHTML = '';
+                await loadRepliesForComment(commentId, repliesList, 0);
+            } else {
+                repliesSection.style.display = 'none';
+                replyInputArea.style.display = 'none';
+                showMoreButton.style.display = 'none';
+            }
+        } else if (e.target.classList.contains('submit-reply-button')) {
+            const submitReplyButton = e.target;
+            const commentId = submitReplyButton.dataset.commentId;
+            const replyInput = submitReplyButton.previousElementSibling;
+            const replyText = replyInput.value.trim();
+            
+            const repliesSection = submitReplyButton.closest('.replies-section') || submitReplyButton.closest('.nested-replies-section');
+            const repliesList = repliesSection.querySelector('.replies-list');
+
+            await submitReply(commentId, replyText, repliesList, replyInput);
+        } else if (e.target.classList.contains('show-more-replies-button')) {
+            const showMoreButton = e.target;
+            const commentId = showMoreButton.dataset.commentId;
+            const offset = parseInt(showMoreButton.dataset.offset || '0');
+            
+            const repliesSection = showMoreButton.closest('.replies-section') || showMoreButton.closest('.nested-replies-section');
+            const repliesList = repliesSection.querySelector('.replies-list');
+
+            await loadRepliesForComment(commentId, repliesList, offset);
+        }
+ else if (e.target.classList.contains('submit-reply-button')) {
+            const submitReplyButton = e.target;
+            const commentId = submitReplyButton.dataset.commentId;
+            const replyInput = submitReplyButton.previousElementSibling; // L'input est juste avant le bouton
+            const replyText = replyInput.value.trim();
+            const repliesSection = document.getElementById(`replies-${commentId}`);
+            const repliesList = repliesSection.querySelector('.replies-list');
+
+            await submitReply(commentId, replyText, repliesList, replyInput);
+        } else if (e.target.classList.contains('show-more-replies-button')) {
+            const showMoreButton = e.target;
+            const commentId = showMoreButton.dataset.commentId;
+            const offset = parseInt(showMoreButton.dataset.offset || '0');
+            const repliesSection = document.getElementById(`replies-${commentId}`);
+            const repliesList = repliesSection.querySelector('.replies-list');
+
+            await loadRepliesForComment(commentId, repliesList, offset);
+        }
+    });
+
+    // NOUVELLE FONCTION: Signaler un post
+    const reportPost = async (postId, reason = '') => {
+        try {
+            const response = await fetch(`${BASE_API_URL}report_post.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ post_id: postId, reporter_user_id: currentUserId, reason: reason })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Publication signalée avec succès ! Merci de votre contribution.');
+                if (currentUserRole === 'moderator' && moderatorDashboardView.style.display === 'block') {
+                    loadModerationPosts();
+                }
+            } else {
+                alert('Erreur lors du signalement de la publication : ' + (data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors du signalement de la publication:', error);
+            alert('Une erreur est survenue lors du signalement de la publication. Veuillez réessayer.');
+        }
+    };
+
+    // --- Fonctions et événements pour le Dashboard Administrateur ---
+   // --- Fonctions et événements pour le Dashboard Administrateur ---
+    const displayAdminDashboard = async () => {
+        updateMainAppContentVisibility(false);
+        showView(adminDashboardView);
+
+        try {
+            const statsResponse = await fetch(`${BASE_API_URL}admin_stats.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const statsData = await statsResponse.json();
+            if (statsData.success) {
+                document.getElementById('stat-total-users').textContent = statsData.total_users;
+                document.getElementById('stat-total-posts').textContent = statsData.total_posts;
+                document.getElementById('stat-total-moderators').textContent = statsData.total_moderators;
+            } else {
+                console.error("Erreur chargement stats admin:", statsData.message);
+                document.getElementById('stat-total-users').textContent = 'N/A';
+                document.getElementById('stat-total-posts').textContent = 'N/A';
+                document.getElementById('stat-total-moderators').textContent = 'N/A';
+                alert('Erreur de chargement des statistiques admin : ' + statsData.message);
+            }
+        } catch (error) {
+            console.error("Erreur réseau chargement stats admin:", error);
+            document.getElementById('stat-total-users').textContent = 'Erreur';
+            document.getElementById('stat-total-posts').textContent = 'Erreur';
+            document.getElementById('stat-total-moderators').textContent = 'Erreur';
+            alert('Erreur réseau lors du chargement des statistiques admin.');
+        }
+
+        await loadModeratorsList();
+
+        const adminModerationPostsList = document.getElementById('admin-moderation-posts-list');
+        const adminModerationUsersList = document.getElementById('admin-moderation-users-list');
+
+        if (adminModerationPostsList) {
+            await loadModerationPosts(adminModerationPostsList);
+        }
+        if (adminModerationUsersList) {
+            await loadModerationUsers(adminModerationUsersList);
+        }
+
+        const addModeratorBtn = document.getElementById('add-moderator-btn');
+        const newModeratorEmailInput = document.getElementById('new-moderator-email');
+        const newModeratorPasswordInput = document.getElementById('new-moderator-password');
+        const newModeratorFirstNameInput = document.getElementById('new-moderator-first-name');
+        const newModeratorLastNameInput = document.getElementById('new-moderator-last-name');
+        const addModeratorMessage = document.getElementById('addModeratorMessage');
+
+        addModeratorBtn.onclick = async () => {
+            const email = newModeratorEmailInput.value.trim();
+            const password = newModeratorPasswordInput.value.trim();
+            const firstName = newModeratorFirstNameInput.value.trim();
+            const lastName = newModeratorLastNameInput.value.trim();
+
+            if (!email || !password || !firstName || !lastName) {
+                displayMessage(addModeratorMessage, 'Tous les champs sont requis pour ajouter un modérateur.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}add_moderator.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserId, email, password, first_name: firstName, last_name: lastName })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    displayMessage(addModeratorMessage, data.message, 'success');
+                    newModeratorEmailInput.value = '';
+                    newModeratorPasswordInput.value = '';
+                    newModeratorFirstNameInput.value = '';
+                    newModeratorLastNameInput.value = '';
+                    loadModeratorsList();
+                } else {
+                    displayMessage(addModeratorMessage, data.message, 'error');
+                }
+            } catch (error) {
+                console.error("Erreur réseau ajout modérateur:", error);
+                displayMessage(addModeratorMessage, 'Erreur réseau lors de l\'ajout du modérateur.', 'error');
+            }
+        };
+    };
+    const loadModeratorsList = async () => {
+        const moderatorsListElement = document.getElementById('moderators-list');
+        try {
+            const response = await fetch(`${BASE_API_URL}get_moderators.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const data = await response.json();
+            if (data.success && data.moderators) {
+                let html = '';
+                if (data.moderators.length === 0) {
+                    html = '<li>Aucun modérateur enregistré.</li>';
+                } else {
+                    data.moderators.forEach(mod => {
+                        const avatarSrc = mod.profile_picture_url ? `${BASE_PROJECT_URL}${mod.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                        html += `
+                            <li class="dashboard-list-item">
+                                <img class="avatar" src="${avatarSrc}" alt="Avatar de ${mod.first_name || 'Inconnu'}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                <span>${mod.prenom || 'Inconnu'} ${mod.nom || ''} (${mod.email || 'N/A'})</span>
+                                <button class="btn btn-danger btn-sm delete-moderator-btn" data-moderator-id="${mod.moderator_id}">Supprimer</button>
+                            </li>
+                        `;
+                    });
+                }
+                moderatorsListElement.innerHTML = html;
+
+                moderatorsListElement.querySelectorAll('.delete-moderator-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        if (confirm('Êtes-vous sûr de vouloir supprimer ce modérateur ?')) {
+                            const moderatorId = e.target.dataset.moderatorId;
+                            try {
+                                const response = await fetch(`${BASE_API_URL}delete_moderator.php`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ user_id: currentUserId, moderator_id: moderatorId })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Modérateur supprimé avec succès.');
+                                    loadModeratorsList();
+                                } else {
+                                    alert('Erreur lors de la suppression du modérateur : ' + (data.message || 'Erreur inconnue'));
+                                }
+                            } catch (error) {
+                                console.error("Erreur réseau suppression modérateur:", error);
+                                alert('Erreur réseau lors de la suppression du modérateur.');
+                            }
+                        }
+                    };
+                });
+
+            } else {
+                moderatorsListElement.innerHTML = '<li>Erreur lors du chargement des modérateurs.</li>';
+                alert('Erreur de chargement des modérateurs : ' + (data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error("Erreur réseau chargement modérateurs:", error);
+            moderatorsListElement.innerHTML = '<li>Erreur de connexion pour les modérateurs.</li>';
+            alert('Erreur réseau lors du chargement des modérateurs.');
+        }
+    };
+
+
+    // --- Fonctions et événements pour le Dashboard Modérateur ---
+  
+    // --- Fonctions et événements pour le Dashboard Modérateur ---
+    const displayModeratorDashboard = async () => {
+        updateMainAppContentVisibility(false);
+        showView(moderatorDashboardView);
+
+        try {
+            const statsResponse = await fetch(`${BASE_API_URL}moderator_stats.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const statsData = await statsResponse.json();
+            if (statsData.success) {
+                document.getElementById('stat-reported-posts').textContent = statsData.reported_posts;
+                document.getElementById('stat-blocked-users').textContent = statsData.blocked_users;
+            } else {
+                console.error("Erreur chargement stats modérateur:", statsData.message);
+                document.getElementById('stat-reported-posts').textContent = 'N/A';
+                document.getElementById('stat-blocked-users').textContent = 'N/A';
+                alert('Erreur de chargement des statistiques modérateur : ' + statsData.message);
+            }
+        } catch (error) {
+            console.error("Erreur réseau chargement stats modérateur:", error);
+            document.getElementById('stat-reported-posts').textContent = 'Erreur';
+            document.getElementById('stat-blocked-users').textContent = 'Erreur';
+            alert('Erreur réseau lors du chargement des statistiques modérateur.');
+        }
+
+        const moderatorModerationPostsList = document.getElementById('moderator-moderation-posts-list');
+        const moderatorModerationUsersList = document.getElementById('moderator-moderation-users-list');
+
+        if (moderatorModerationPostsList) {
+            await loadModerationPosts(moderatorModerationPostsList);
+        }
+        if (moderatorModerationUsersList) {
+            await loadModerationUsers(moderatorModerationUsersList);
+        }
+    };
+
+
+const loadModerationPosts = async (targetElement) => {
+        const moderationPostsList = targetElement;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}get_reported_posts.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const data = await response.json();
+            if (data.success && data.posts) {
+                let html = '';
+                if (data.posts.length === 0) {
+                    html = '<li>Aucun article signalé pour le moment.</li>';
+                } else {
+                    data.posts.forEach(post => {
+                        const avatarSrc = post.profile_picture_url ? `${BASE_PROJECT_URL}${post.profile_picture_url}` : DEFAULT_AVATAR_URL;
+                        html += `
+                            <li class="dashboard-list-item">
+                                <img class="avatar" src="${avatarSrc}" alt="Avatar de ${post.first_name || 'Inconnu'}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                <span>Post ID: ${post.post_id} - Par: ${post.prenom || 'Inconnu'} ${post.nom || ''} - Signalements: ${post.report_count}</span>
+                                <button class="btn btn-danger btn-sm delete-post-btn" data-post-id="${post.post_id || ''}">Supprimer</button>
+                                <button class="btn btn-info btn-sm view-post-btn" data-post-id="${post.post_id || ''}">Voir</button>
+                            </li>
+                        `;
+                    });
+                }
+                moderationPostsList.innerHTML = html;
+
+                moderationPostsList.querySelectorAll('.delete-post-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        if (confirm('Êtes-vous sûr de vouloir supprimer ce post ?')) {
+                            const postId = e.target.dataset.postId;
+                            try {
+                                const response = await fetch(`${BASE_API_URL}delete_post.php`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ user_id: currentUserId, post_id: postId })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Post supprimé avec succès.');
+                                    loadModerationPosts(moderationPostsList);
+                                } else {
+                                    alert('Erreur lors de la suppression du post : ' + (data.message || 'Erreur inconnue'));
+                                }
+                            } catch (error) {
+                                console.error("Erreur réseau suppression post:", error);
+                                alert('Erreur réseau lors de la suppression du post.');
+                            }
+                        }
+                    };
+                });
+                moderationPostsList.querySelectorAll('.view-post-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const postId = e.target.dataset.postId;
+                        await displayPostInModal(postId);
+                    };
+                });
+
+            } else {
+                moderationPostsList.innerHTML = '<li>Aucun article signalé pour le moment.</li>';
+                alert('Erreur de chargement des articles signalés : ' + (data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error("Erreur réseau chargement posts modération:", error);
+            moderationPostsList.innerHTML = '<li>Erreur de connexion pour les articles.</li>';
+            alert('Erreur réseau lors du chargement des articles signalés.');
+        }
+    };
+
+    // Nouvelle fonction pour afficher un post dans une modal
+    const displayPostInModal = async (postId) => {
+        try {
+            const response = await fetch(`${BASE_API_URL}get_post_details.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ post_id: postId, user_id: currentUserId })
+            });
+            const data = await response.json();
+
+            if (data.success && data.post) {
+                const post = data.post;
+                const avatarSrc = post.profile_picture_url ? `${BASE_PROJECT_URL}${post.profile_picture_url}` : `${BASE_ASSETS_URL}images/default-avatar.png`;
+                const postImageHtml = post.image_url ? `<img class="post-image" src="../${post.image_url}" alt="Image du post">` : '';
+
+                let reportsHtml = '';
+                if (post.reports && post.reports.length > 0) {
+                    reportsHtml += '<h4>Détails des signalements :</h4>';
+                    post.reports.forEach(report => {
+                        reportsHtml += `
+                            <div class="report-item">
+                                <p><strong>Signalé par :</strong> ${report.reporter_first_name || 'Inconnu'} ${report.reporter_last_name || ''}</p>
+                                <p><strong>Raison :</strong> ${report.reason || 'Non spécifiée'}</p>
+                                <p><strong>Date :</strong> ${new Date(report.reported_at).toLocaleString('fr-FR')}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    reportsHtml = '<p>Aucun détail de signalement disponible.</p>';
+                }
+
+
+                postViewerContentDetails.innerHTML = `
+                    <div class="post-header">
+                        <img class="avatar" src="${avatarSrc}" alt="Avatar de ${post.prenom || 'Inconnu'} ${post.nom || ''}">
+                        <div class="user-info">
+                            <strong>${post.prenom || 'Inconnu'} ${post.nom || ''}</strong>
+                            <span class="post-time">${new Date(post.created_at).toLocaleString('fr-FR')}</span>
+                        </div>
+                    </div>
+                    <p class="post-description">${post.description}</p>
+                    ${postImageHtml}
+                    <div class="report-details">
+                        ${reportsHtml}
+                    </div>
+                `;
+                postViewerModal.style.display = 'flex'; // Afficher la modal
+
+            } else {
+                alert('Erreur lors de la récupération des détails du post : ' + (data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la récupération des détails du post:', error);
+            alert('Une erreur est survenue lors du chargement des détails du post. Veuillez réessayer.');
+        }
+    };
+
+    // Fermer la modal de visualisation de post
+    closePostViewerModalBtn.addEventListener('click', () => {
+        postViewerModal.style.display = 'none';
+        postViewerContentDetails.innerHTML = ''; // Nettoyer le contenu
+    });
+ const loadModerationUsers = async (targetElement) => {
+        const moderationUsersList = targetElement;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}get_users_for_moderation.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const data = await response.json();
+            if (data.success && data.users) {
+                let html = '';
+                if (data.users.length === 0) {
+                    html = '<li>Aucun utilisateur à surveiller.</li>';
+                } else {
+                    data.users.forEach(user => {
+                        const avatarSrc = user.profile_picture_url ? `${BASE_PROJECT_URL}${user.profile_picture_url}` : DEFAULT_AVATAR_URL;
+                        html += `
+                            <li class="dashboard-list-item">
+                                <img class="avatar" src="${avatarSrc}" alt="Avatar de ${user.prenom || 'Inconnu'}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                <span>${user.prenom || 'Inconnu'} ${user.nom || ''} (${user.email || 'N/A'}) - Statut: ${user.status || 'N/A'} - Signalements: ${user.report_count || 0}</span>
+                                ${user.status === 'active' ? `<button class="btn btn-danger btn-sm block-user-btn" data-user-id="${user.user_id || ''}">Bloquer</button>` : `<button class="btn btn-success btn-sm unblock-user-btn" data-user-id="${user.user_id || ''}">Débloquer</button>`}
+                                <button class="btn btn-info btn-sm view-user-profile-btn" data-user-id="${user.user_id || ''}">Voir Profil</button>
+                            </li>
+                        `;
+                    });
+                }
+                moderationUsersList.innerHTML = html;
+
+                moderationUsersList.querySelectorAll('.block-user-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        if (confirm('Êtes-vous sûr de vouloir bloquer cet utilisateur ?')) {
+                            const userIdToBlock = e.target.dataset.userId;
+                            try {
+                                const response = await fetch(`${BASE_API_URL}block_user.php`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ user_id: currentUserId, target_user_id: userIdToBlock })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Utilisateur bloqué avec succès.');
+                                    loadModerationUsers(moderationUsersList);
+                                } else {
+                                    alert('Erreur lors du blocage de l\'utilisateur : ' + (data.message || 'Erreur inconnue'));
+                                }
+                            } catch (error) {
+                                console.error("Erreur réseau blocage utilisateur:", error);
+                                alert('Erreur réseau lors du blocage de l\'utilisateur.');
+                            }
+                        }
+                    };
+                });
+                moderationUsersList.querySelectorAll('.unblock-user-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        if (confirm('Êtes-vous sûr de vouloir débloquer cet utilisateur ?')) {
+                            const userIdToUnblock = e.target.dataset.userId;
+                            try {
+                                const response = await fetch(`${BASE_API_URL}unblock_user.php`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ user_id: currentUserId, target_user_id: userIdToUnblock })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Utilisateur débloqué avec succès.');
+                                    loadModerationUsers(moderationUsersList);
+                                } else {
+                                    alert('Erreur lors du déblocage de l\'utilisateur : ' + (data.message || 'Erreur inconnue'));
+                                }
+                            } catch (error) {
+                                console.error("Erreur réseau déblocage utilisateur:", error);
+                                alert('Erreur réseau lors du déblocage de l\'utilisateur.');
+                            }
+                        }
+                    };
+                });
+                moderationUsersList.querySelectorAll('.view-user-profile-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const userIdToView = e.target.dataset.userId;
+                        if (userIdToView && userIdToView !== 'undefined' && userIdToView !== 'null' && userIdToView.trim() !== '') {
+                            showView(mainAppContent);
+                            displayUserProfile(userIdToView);
+                        } else {
+                            console.warn('ID utilisateur pour le profil modérateur introuvable ou invalide:', userIdToView);
+                        }
+                    };
+                });
+
+            } else {
+                moderationUsersList.innerHTML = '<li>Aucun utilisateur à surveiller.</li>';
+                alert('Erreur de chargement des utilisateurs pour modération : ' + (data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error("Erreur réseau chargement utilisateurs modération:", error);
+            moderationUsersList.innerHTML = '<li>Erreur de connexion pour les utilisateurs.</li>';
+            alert('Erreur réseau lors du chargement des utilisateurs pour modération.');
+        }
+    };
+
+
+
+    // --- Fonctions de Notification ---
+    const createNotification = async (recipientId, senderId, type, content) => {
+        try {
+            const response = await fetch(`${BASE_API_URL}create_notification.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipient_id: recipientId,
+                    sender_id: senderId,
+                    type: type,
+                    content: content
+                })
+            });
+            const data = await response.json();
+            if (!data.success) {
+                console.error('Erreur lors de la création de la notification:', data.message);
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors de la création de la notification:', error);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        if (!currentUserId) return;
+        try {
+            const response = await fetch(`${BASE_API_URL}get_notifications.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId })
+            });
+            const data = await response.json();
+
+            if (data.success && data.notifications) {
+                let unreadCount = 0;
+                let notificationsHtml = '';
+                if (data.notifications.length === 0) {
+                    notificationsHtml = '<p class="no-notifications">Aucune notification.</p>';
+                } else {
+                    data.notifications.forEach(notif => {
+                        if (notif.is_read === 0) unreadCount++;
+                        notificationsHtml += `
+                            <div class="notification-item ${notif.is_read === 0 ? 'unread' : ''}" data-notification-id="${notif.notification_id}">
+                                <p>${notif.content}</p>
+                                <small>${new Date(notif.created_at).toLocaleString('fr-FR')}</small>
+                            </div>
+                        `;
+                    });
+                }
+                notificationsList.innerHTML = notificationsHtml;
+                notificationCount.textContent = unreadCount;
+                notificationCount.style.display = unreadCount > 0 ? 'block' : 'none';
+            } else {
+                notificationsList.innerHTML = '<p class="no-notifications">Erreur de chargement des notifications.</p>';
+                notificationCount.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des notifications:', error);
+            notificationsList.innerHTML = '<p class="no-notifications">Erreur réseau.</p>';
+            notificationCount.style.display = 'none';
+        }
+    };
+
+    const markNotificationAsRead = async (notificationId) => {
+        try {
+            const response = await fetch(`${BASE_API_URL}mark_notification_read.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notification_id: notificationId, user_id: currentUserId })
+            });
+            const data = await response.json();
+            if (data.success) {
+                fetchNotifications(); // Refresh notifications to update count and status
+            } else {
+                console.error('Erreur lors du marquage de la notification comme lue:', data.message);
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors du marquage de la notification comme lue:', error);
+        }
+    };
+
+    // Event listeners for notifications
+    if (notificationBell) {
+        notificationBell.addEventListener('click', () => {
+            notificationsDropdown.style.display = notificationsDropdown.style.display === 'block' ? 'none' : 'block';
+            if (notificationsDropdown.style.display === 'block') {
+                fetchNotifications(); // Refresh list when opened
+            }
+        });
+    }
+
+    if (notificationsDropdown) {
+        notificationsDropdown.addEventListener('click', (e) => {
+            const notificationItem = e.target.closest('.notification-item');
+            if (notificationItem && notificationItem.dataset.notificationId) {
+                markNotificationAsRead(notificationItem.dataset.notificationId);
+            }
+        });
+    }
+
+    // Close notifications dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (notificationsDropdown && notificationBell && !notificationsDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+            notificationsDropdown.style.display = 'none';
+        }
+    });
+
+
+    // --- Écouteurs d'événements pour les boutons de navigation principaux ---
+    if (newsFeedBtn) { newsFeedBtn.addEventListener('click', () => { setActiveButton(newsFeedBtn); loadNewsFeedPosts(); loadStories();  }); }
+    if (invitationsBtn) { invitationsBtn.addEventListener('click', () => { setActiveButton(invitationsBtn); loadInvitations(); }); }
+    if (friendsBtn) { friendsBtn.addEventListener('click', () => { setActiveButton(friendsBtn); loadFriends();  }); }
+    if (profileBtn) { profileBtn.addEventListener('click', () => { setActiveButton(profileBtn); displayUserProfile(currentUserId);}); }
+    if (messagesBtn) {
+        messagesBtn.addEventListener('click', () => {
+            setActiveButton(messagesBtn);
+            if (!currentUserId) { alert('Veuillez vous connecter pour accéder à la messagerie.'); return; }
+            displayMessagesInterface();
+        });
+    }
+
+    // --- Gestion des dashboards Admin/Modérateur ---
+    if (adminDashboardBtn) {
+        adminDashboardBtn.addEventListener('click', () => {
+            displayAdminDashboard();
+        });
+    }
+    if (moderatorDashboardBtn) {
+        moderatorDashboardBtn.addEventListener('click', () => {
+            displayModeratorDashboard();
+        });
+    }
+
+    // Boutons de navigation internes aux dashboards pour revenir au fil d'actu
+    if (newsFeedBtnAdmin) {
+        newsFeedBtnAdmin.addEventListener('click', () => {
+            if (currentUserId && currentUserRole === 'admin') {
+                showView(mainAppContent);
+                loadNewsFeedPosts();
+                loadStories();
+                updateMainAppContentVisibility(true);
+                setActiveButton(newsFeedBtn); // Active le bouton du fil d'actu dans le header principal
+            } else {
+                alert("Accès non autorisé.");
+                performLogout(); // Redirige vers la connexion si le rôle n'est pas admin
+            }
+        });
+    }
+    if (newsFeedBtnModerator) {
+        newsFeedBtnModerator.addEventListener('click', () => {
+            if (currentUserId && currentUserRole === 'moderator') {
+                showView(mainAppContent);
+                loadNewsFeedPosts();
+                loadStories();
+                updateMainAppContentVisibility(true);
+                setActiveButton(newsFeedBtn); // Active le bouton du fil d'actu dans le header principal
+            } else {
+                alert("Accès non autorisé.");
+                performLogout(); // Redirige vers la connexion si le rôle n'est pas modérateur
+            }
+        });
+    }
+
+    // --- Appel initial pour gérer la vue au chargement de la page ---
+    handleInitialRoute();
+});
+</script>
+</body>
+</html>
+
